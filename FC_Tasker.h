@@ -17,20 +17,24 @@
 #endif
 
 
+// About: https://roboticsbackend.com/arduino-stl-library/
+#include <functional>
+
+
 class FC_SimpleTasker
 {
  public:
 	FC_SimpleTasker();
 	~FC_SimpleTasker();
-	void addFunction( void (*funcPointer)(), long interv, uint16_t maxDur );
-	void scheduleTasks(); // plan the tasks shifts
+	void addFunction(std::function<void()> functionObj, long interv, uint16_t maxDur );
+	//void scheduleTasks(); // plan the tasks shifts
 	virtual void runTasker(); // should be the only function in loop. Execute tasks in intelligent way, not everything at one time
 	
 	
  protected:
 	struct Task
 	{
-		void (*functionPointer)(); // pointer to the function
+		std::function<void()> functionObject; // pointer to the function
 		long interval; // in milliseconds
 		uint16_t maxDuration; // in milliseconds - input by user
 		uint32_t lastExecuteTime; // in microseconds, time when this function was lately called
