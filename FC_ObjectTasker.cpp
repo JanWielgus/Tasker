@@ -19,11 +19,15 @@ FC_ObjectTasker::~FC_ObjectTasker()
 }
 
 
-bool FC_ObjectTasker::addTask(FC_Task* task)
+bool FC_ObjectTasker::addTask(FC_Task* task, uint32_t interval, uint16_t maxDuration)
 {
 	if (amtOfTasks >= MaxAmtOfTasks) // array is full
 		return false;
 
+	// set task interval and maximum duration
+	task->setProperties(interval, maxDuration);
+
+	// Add to the task pointers array
 	tasksArray[amtOfTasks] = task;
 	amtOfTasks++;
 

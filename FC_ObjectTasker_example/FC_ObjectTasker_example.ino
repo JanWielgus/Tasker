@@ -30,10 +30,6 @@ float otherFunciton(float zmienna)
 
 class Task1 : public FC_Task
 {
-public:
-    Task1(uint32_t interval, uint16_t maxDuration)
-        : FC_Task(interval, maxDuration)
-    {}
     void execute() override
     {
         varTask1++;
@@ -48,10 +44,6 @@ public:
 
 class Task2 : public FC_Task
 {
-public:
-    Task2(uint32_t interval, uint16_t maxDuration)
-        : FC_Task(interval, maxDuration)
-    {}
     void execute() override
     {
         varTask2++;
@@ -66,10 +58,6 @@ public:
 
 class Task3 : public FC_Task
 {
-public:
-    Task3(uint32_t interval, uint16_t maxDuration)
-        : FC_Task(interval, maxDuration)
-    {}
     void execute() override
     {
         varTask3++;
@@ -93,10 +81,6 @@ public:
 
 class ShowTask : public FC_Task
 {
-public:
-    ShowTask(uint32_t interval, uint16_t maxDuration)
-        : FC_Task(interval, maxDuration)
-    {}
     void execute() override
     {
         Serial.print("t1: ");
@@ -122,10 +106,10 @@ void setup()
     Serial.println("Program has just started.");
 
     // Add new instance of Task1 to the tasker
-    tasker->addTask(new Task1(20000, 0)); // 50Hz
-    tasker->addTask(new Task2(555L, 0)); // 2500Hz
-    tasker->addTask(new Task3(10000L, 0)); // 15Hz
-    tasker->addTask(new ShowTask(1000000L, 0)); // 1Hz
+    tasker->addTask(new Task1, 20000L, 0); // 50Hz
+    tasker->addTask(new Task2, 555L, 0); // 2500Hz
+    tasker->addTask(new Task3, 10000L, 0); // 15Hz
+    tasker->addTask(new ShowTask, 1000000L, 0); // 1Hz
 
     Serial.println("End of setup()");
 }
