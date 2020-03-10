@@ -13,7 +13,13 @@
 class FC_Task
 {
 public:
-	FC_Task(uint32_t interval, uint16_t maxDuration);
+	// Each Task have to override this method (and put there actual task code)
+	virtual void execute() = 0;
+	
+private:
+	// this method have to be called by the FC_ObjectTasker when adding a new task
+	void setProperties(uint32_t interval, uint16_t maxDuration);
+
 
 private:
     uint32_t interval = 0; // [in microseconds] time between every execution
@@ -21,11 +27,7 @@ private:
     uint32_t nextExecutionTime = 0; // time since the beginning when to execute task
     //uint16_t timeShift = 0; // NOT USED CURERNTLY but can be to spread tasks in time
 
-public:
-    virtual void execute() = 0;
-
-private:
-    friend class FC_ObjectTasker;
+    friend class FC_ObjectTasker; // Allow FC_ObjectTasker to use private components of this class
 };
 
 

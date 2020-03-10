@@ -16,7 +16,9 @@ class FC_ObjectTasker
 public:
     FC_ObjectTasker(uint8_t maxTaskAmt);
     virtual ~FC_ObjectTasker();
-    bool addTask(FC_Task* task);
+    bool addTask(FC_Task* task, uint32_t interval, uint16_t maxDuration);
+	
+	// This should be the only method inside loop()
     virtual void run(); // this method is implemented but can be overridden
 
 
