@@ -35,6 +35,12 @@ bool FC_ObjectTasker::addTask(FC_Task* task, uint32_t interval, uint16_t maxDura
 }
 
 
+uint32_t FC_ObjectTasker::getCurrentTime()
+{
+	return curTime;
+}
+
+
 void FC_ObjectTasker::run()
 {
 	curTime = micros();
