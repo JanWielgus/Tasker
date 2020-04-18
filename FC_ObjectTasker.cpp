@@ -58,3 +58,9 @@ void FC_ObjectTasker::run()
 }
 
 
+void FC_ObjectTasker::execute()
+{
+	run();
+}
+
+

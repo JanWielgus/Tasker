@@ -11,7 +11,7 @@
 #include <FC_Task.h>
 
 
-class FC_ObjectTasker
+class FC_ObjectTasker : public FC_Task
 {
 public:
     FC_ObjectTasker(uint8_t maxTaskAmt);
@@ -29,6 +29,10 @@ protected:
     uint8_t amtOfTasks = 0; // current amount of tasks (at most MaxAmtOfTasks)
 
     uint32_t curTime = 0; // current time (used in run() method)
+
+
+    // Enable to add mainTasker to another mainTasker as a task
+    void execute() override;
 };
 
 
