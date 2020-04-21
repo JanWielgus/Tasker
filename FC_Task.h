@@ -15,6 +15,11 @@ class FC_Task
 public:
 	// Each Task have to override this method (and put there actual task code)
 	virtual void execute() = 0;
+
+    uint32_t getInterval()
+    {
+        return interval;
+    }
 	
 private:
 	// this method have to be called by the FC_ObjectTasker when adding a new task
