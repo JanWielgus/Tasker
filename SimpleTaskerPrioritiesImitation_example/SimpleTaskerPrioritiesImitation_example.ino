@@ -8,15 +8,15 @@
     Create two taskers and add one as a task to the other one.
 */
 
-#include <FC_ObjectTasker.h>
-#include <FC_Task.h>
+#include <Task.h>
+#include <SimpleTasker.h>
 
-FC_ObjectTasker mainTasker(5);
-FC_ObjectTasker lowPriorityTasker(5);
+SimpleTasker mainTasker(5);
+SimpleTasker lowPriorityTasker(5);
 
 
 
-class ImportantTask1 : public FC_Task
+class ImportantTask1 : public Task
 {
     void execute() override
     {
@@ -25,7 +25,7 @@ class ImportantTask1 : public FC_Task
 };
 
 
-class OccasionalTask1 : public FC_Task
+class OccasionalTask1 : public Task
 {
     void execute() override
     {
@@ -34,7 +34,7 @@ class OccasionalTask1 : public FC_Task
 };
 
 
-class OccasionalTask2 : public FC_Task
+class OccasionalTask2 : public Task
 {
     void execute() override
     {
@@ -48,25 +48,25 @@ class OccasionalTask2 : public FC_Task
 void setup()
 {
     // Add important tasks (leave one place for low priority tasker, it will be added just like other tasks)
-    mainTasker.addTask(new ImportantTask1, 4000L, 0); // 250Hz
+    mainTasker.addTask(new ImportantTask1, 250.0f, 0); // 250Hz
     // other tasks that need high execution accuracy ...
 
     
     // Add lower priority tasks to the second tasker
-    lowPriorityTasker.addTask(new OccasionalTask1, 1000000L, 0); // 1Hz
-    lowPriorityTasker.addTask(new OccasionalTask2, 200000L, 0); // 5Hz
+    lowPriorityTasker.addTask(new OccasionalTask1, 1.0f, 0); // 1Hz
+    lowPriorityTasker.addTask(new OccasionalTask2, 5.0f, 0); // 5Hz
     // other tasks which executin time could be checked less times per second ...
 
 
     // Add second (low priority) tasker as a task to the main tasker
     // check low priority tasks with precision of 1000 microseconds (1 ms) (this can be changed)
     // it is good to this interval be a divisor of all low priority tasks
-    mainTasker.addTask(&lowPriorityTasker, 10000L, 0); // 100Hz (check if need to update low priority tasks 100 times per second)
+    mainTasker.addTask(&lowPriorityTasker, 100.0f, 0); // 100Hz (check if need to update low priority tasks 100 times per second)
 }
 
 void loop()
 {
     // execute only main tasker
-    mainTasker.run();
+    mainTasker.runLoop();
 }
 
