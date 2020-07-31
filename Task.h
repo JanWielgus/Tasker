@@ -10,6 +10,7 @@
 #define TASK_H
 
 #include <IExecutable.h>
+#include <arduino.h>
 
 
 class Task : public IExecutable
