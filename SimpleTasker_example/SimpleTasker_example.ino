@@ -7,28 +7,28 @@
     library for the drone project
 */
 
-#include <FC_ObjectTasker.h>
-#include <FC_Task.h>
+#include <Task.h>
+#include <SimpleTasker.h>
 
-FC_ObjectTasker* tasker = new FC_ObjectTasker(5);
-//FC_ObjectTasker tasker(5);
+ITasker* tasker = new SimpleTasker(5);
+//SimpleTasker tasker(5);
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // test variables, functions and tasks
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-volatile int varTask1 = 0;
-volatile int varTask2 = 0;
-volatile int varTask3 = 0;
-volatile int output;
+int varTask1 = 0;
+int varTask2 = 0;
+int varTask3 = 0;
+int output;
 
 float otherFunciton(float zmienna)
 {
     return (zmienna + 2) * 5.2;
 }
 
-class Task1 : public FC_Task
+class Task1 : public Task
 {
     void execute() override
     {
@@ -42,7 +42,7 @@ class Task1 : public FC_Task
     }
 };
 
-class Task2 : public FC_Task
+class Task2 : public Task
 {
     void execute() override
     {
@@ -56,7 +56,7 @@ class Task2 : public FC_Task
     }
 };
 
-class Task3 : public FC_Task
+class Task3 : public Task
 {
     void execute() override
     {
@@ -79,7 +79,7 @@ class Task3 : public FC_Task
     }
 };
 
-class ShowTask : public FC_Task
+class ShowTask : public Task
 {
     void execute() override
     {
@@ -106,15 +106,15 @@ void setup()
     Serial.println("Program has just started.");
 
     // Add new instance of Task1 to the tasker
-    tasker->addTask(new Task1, 20000L, 0); // 50Hz
-    tasker->addTask(new Task2, 555L, 0); // 2500Hz
-    tasker->addTask(new Task3, 10000L, 0); // 15Hz
-    tasker->addTask(new ShowTask, 1000000L, 0); // 1Hz
+    tasker->addTask(new Task1, 50.0f, 0); // 50Hz
+    tasker->addTask(new Task2, 500.0f, 0); // 500Hz
+    tasker->addTask(new Task3, 17.0f, 0); // 17Hz
+    tasker->addTask(new ShowTask, 1.0f, 0); // 1Hz
 
     Serial.println("End of setup()");
 }
 
 void loop()
 {
-    tasker->run();
+    tasker->runLoop();
 }
