@@ -40,7 +40,7 @@ public:
     /**
      * @brief Each concrete Task class have to implement this method
      */
-    void execute() override = 0;
+    virtual void execute() override = 0;
 
     /**
      * @brief Set the Properties object Called by the ObjectTasker when adding new task
