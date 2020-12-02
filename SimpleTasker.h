@@ -25,27 +25,30 @@ protected:
 public:
     SimpleTasker(uint8_t maxTaskAmt);
     virtual ~SimpleTasker();
-    
-    /**
-     * @brief Add preconfigured task to tasker
-     * 
-     * @param task Pointer to concrete class that extend Task abstract class
-     * @return false if task haven't got set up frequency and maxDuration
-     */
-    bool addTask(Task* task) override;
 
     /**
-     * @brief Add task and set its frequency and maxDuration
+     * @brief Add task and set its frequency and maxDuration.
      * 
-     * @param task Pointer to concrete class that extend Task abstract class
-     * @param frequency Task running frequency
-     * @param maxDuration Measured task maxDuration (if not checked, set 0)
-     * @return false if task haven't get set up frequency and maxDuration
+     * @param task Pointer to concrete class that extend Task abstract class.
+     * @param frequency Task running frequency.
+     * @param maxDuration Measured task maxDuration (if not checked, set 0).
+     * @return false if tasks array is full and this task was not added,
+     * true otherwise.
      */
     bool addTask(Task* task, float frequency, uint16_t maxDuration) override;
 
     /**
-     * @brief Return (almost) current time. Faster than micros()
+     * @brief Add task and set it's frequency.
+     * 
+     * @param task Pointer to concrete class that extend Task abstract class.
+     * @param frequency Task running frequency.
+     * @return false if tasks array is full and this task was not added,
+     * true otherwise.
+     */
+    bool addTask(Task* task, float frequency) override;
+
+    /**
+     * @brief Return (almost) current time. Faster than micros().
      */
     uint32_t getCurrentTime_micros() override;
 
@@ -58,7 +61,7 @@ public:
 
 protected:
     /**
-     * @brief Enable to add mainTasker to another mainTasker as a task
+     * @brief Enable to add mainTasker to another mainTasker as a task.
      * 
      */
     void execute() override;

@@ -26,14 +26,14 @@ SimpleTasker::~SimpleTasker()
 }
 
 
-bool SimpleTasker::addTask(Task* task)
+bool SimpleTasker::addTask(Task* task, float frequency, uint16_t maxDuration)
 {
-    if (!task->isConfigured())
-        return false;
-    
     if (amtOfTasks >= MaxAmtOfTasks)
         return false;
-    
+
+    task->setProperties(frequency, maxDuration);
+
+    // TODO: handle maxDuration param
 
     tasksArray[amtOfTasks] = task;
     amtOfTasks++;
@@ -42,11 +42,9 @@ bool SimpleTasker::addTask(Task* task)
 }
 
 
-bool SimpleTasker::addTask(Task* task, float frequency, uint16_t maxDuration)
+bool SimpleTasker::addTask(Task* task, float frequency)
 {
-    task->setProperties(frequency, maxDuration);
-
-    return addTask(task);
+    return addTask(task, frequency, 0);
 }
 
 
@@ -62,7 +60,7 @@ void SimpleTasker::runLoop()
 
     for (uint8_t i=0; i < amtOfTasks; i++)
     {
-        if (currentTime >= tasksArray[i]->nextExecutionTime)
+        if (currentTime >= tasksArray[i]->nextExecutionTime_us)
         {
             tasksArray[i]->nextExecutionTime = currentTime + tasksArray[i]->interval;
             tasksArray[i]->execute();

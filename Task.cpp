@@ -8,37 +8,46 @@
 #include <Task.h>
 
 
+const float Task::Million = 1000000.f;
+
+
 Task::Task()
 {
-    interval = 0;
-    maxDuration = 0;
-    nextExecutionTime = 0;
+    interval_us = 0;
+    maxDuration_us = 0;
+    nextExecutionTime_us = 0;
 }
 
 
 Task::Task(float frequency, uint16_t maxDuration)
 {
     setProperties(frequency, maxDuration);
-    nextExecutionTime = 0;
+    nextExecutionTime_us = 0;
 }
 
 
 uint32_t Task::getInterval_us()
 {
-    return interval;
+    return interval_us;
+}
+
+
+float Task::getInterval_s()
+{
+    return interval_us / Million;
 }
 
 
 float Task::getFrequency_Hz()
 {
-    return 1000000.0f / interval;
+    return Million / interval_us;
 }
 
 
 void Task::setProperties(float frequency, uint16_t maxDuration)
 {
-    this->interval = 1000000 / frequency;
-    this->maxDuration = maxDuration;
+    this->interval_us = Million / frequency;
+    this->maxDuration_us = maxDuration;
     isConfiguredFlag = true;
 }
 

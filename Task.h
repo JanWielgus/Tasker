@@ -16,11 +16,13 @@
 class Task : public IExecutable
 {
 protected:
-    uint32_t interval = 0; // [microseconds] time between every execution
-    uint16_t maxDuration = 0; // task max duration (can be used for task planning)
-    uint32_t nextExecutionTime = 0; // time since the beginning when to execute task
+    uint32_t interval_us = 0; // [microseconds] time between every execution
+    uint16_t maxDuration_us = 0; // task max duration (can be used for task planning)
+    uint32_t nextExecutionTime_us = 0; // time since the beginning when to execute task
     //uint16_t timeShift = 0; // NOT USED CURERNTLY but can be to spread tasks in time
     bool isConfiguredFlag = false; // set true when setProperties method is called
+
+    static const float Million;
 
 
 public:
@@ -31,6 +33,11 @@ public:
      * @brief Return this tasks interval in microseconds
      */
     uint32_t getInterval_us();
+
+    /**
+     * @brief Return this tasks interval in seconds
+     */
+    float getInterval_s();
 
     /**
      * @brief Return this tasks frequency in Hz

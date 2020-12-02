@@ -17,9 +17,8 @@ class ITasker
 {
 public:
     virtual ~ITasker() {}
-
-    virtual bool addTask(Task* task) = 0;
     virtual bool addTask(Task* task, float frequency, uint16_t maxDuration) = 0;
+    virtual bool addTask(Task* task, float frequency) = 0;
     virtual uint32_t getCurrentTime_micros() = 0;
     virtual void runLoop() = 0;
 };
