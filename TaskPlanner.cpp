@@ -27,7 +27,7 @@ bool TaskPlanner::scheduleTask_ms(Task* task, uint32_t callIn)
     if (plannedTasks >= MaxPlannedTasks)
         return false;
 
-    task.nextExecutionTime_us = micros() + (callIn * 1000);
+    task->nextExecutionTime_us = micros() + (callIn * 1000);
     tasksArray[plannedTasks] = task;
     plannedTasks++;
 
@@ -40,7 +40,7 @@ bool TaskPlanner::scheduleTask_us(Task* task, uint32_t callIn)
     if (plannedTasks >= MaxPlannedTasks)
         return false;
 
-    task.nextExecutionTime_us = micros() + callIn;
+    task->nextExecutionTime_us = micros() + callIn;
     tasksArray[plannedTasks] = task;
     plannedTasks++;
 
@@ -54,9 +54,9 @@ void TaskPlanner::execute()
 
     for (uint8_t i = 0; i < plannedTasks; i++)
     {
-        if (timeNow >= tasksArray[i].nextExecutionTime_us)
+        if (timeNow >= tasksArray[i]->nextExecutionTime_us)
         {
-            tasksArray[i].execute();
+            tasksArray[i]->execute();
             removeTaskFromArray(i);
         }
     }
@@ -69,7 +69,7 @@ uint8_t TaskPlanner::getAmtOfScheduledTasks()
 }
 
 
-void removeTaskFromArray(uint8_t index)
+void TaskPlanner::removeTaskFromArray(uint8_t index)
 {
     for (uint8_t i = index + 1; i < plannedTasks; i++)
         tasksArray[i-1] = tasksArray[i];

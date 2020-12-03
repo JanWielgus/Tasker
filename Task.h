@@ -66,6 +66,7 @@ public:
 
 
     friend class SimpleTasker;
+	friend class TaskPlanner;
 };
 
 
