@@ -10,7 +10,6 @@
 #define ITASKER_H
 
 #include <Task.h>
-#include <arduino.h>
 
 
 class ITasker

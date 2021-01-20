@@ -7,6 +7,10 @@
 
 #include "TaskPlanner.h"
 
+#ifdef ARDUINO
+    #include <Arduino.h>
+#endif
+
 
 TaskPlanner::TaskPlanner(uint8_t maxPlannedTasks)
     : MaxPlannedTasks(maxPlannedTasks)
