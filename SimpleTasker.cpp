@@ -62,7 +62,7 @@ void SimpleTasker::runLoop()
     {
         if (currentTime >= tasksArray[i]->nextExecutionTime_us)
         {
-            tasksArray[i]->nextExecutionTime = currentTime + tasksArray[i]->interval;
+            tasksArray[i]->nextExecutionTime_us = currentTime + tasksArray[i]->interval_us;
             tasksArray[i]->execute();
         }
     }

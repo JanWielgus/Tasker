@@ -10,7 +10,10 @@
 #define TASK_H
 
 #include <IExecutable.h>
-#include <arduino.h>
+
+#ifdef ARDUINO
+    #include <Arduino.h>
+#endif
 
 
 class Task : public IExecutable
@@ -66,6 +69,7 @@ public:
 
 
     friend class SimpleTasker;
+	friend class TaskPlanner;
 };
 
 
