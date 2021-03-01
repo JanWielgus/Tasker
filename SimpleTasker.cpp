@@ -35,6 +35,8 @@ bool SimpleTasker::addTask(Task* task, float frequency, uint16_t maxDuration)
 
     // TODO: handle maxDuration param
 
+    // TODO: prevent duplication in task list
+
     tasksArray[amtOfTasks] = task;
     amtOfTasks++;
 
