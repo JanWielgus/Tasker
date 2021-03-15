@@ -11,6 +11,7 @@
 
 #include <Task.h>
 
+// TODO: add methods description
 
 class ITasker
 {
@@ -20,6 +21,7 @@ public:
     virtual bool addTask(Task* task, float frequency) = 0;
     virtual uint32_t getCurrentTime_micros() = 0;
     virtual void runLoop() = 0;
+    virtual float getLoad() = 0;
 };
 
 
