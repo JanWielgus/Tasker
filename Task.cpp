@@ -46,7 +46,7 @@ float Task::getFrequency_Hz()
 
 void Task::setProperties(float frequency, uint16_t maxDuration)
 {
-    this->interval_us = Million / frequency;
+    this->interval_us = ((double)Million / frequency) + 0.5;
     this->maxDuration_us = maxDuration;
     isConfiguredFlag = true;
 }
