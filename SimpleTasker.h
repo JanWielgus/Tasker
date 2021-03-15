@@ -21,6 +21,10 @@ protected:
     uint8_t amtOfTasks = 0; // current amount of tasks (at most MaxAmtOfTasks)
     uint32_t currentTime = 0; // current time (used in run() method)
 
+    const float LoadFilterBeta = 0.997f; // If load changes too rapidly or too slowly, adjust this value (bigger->change is slover)
+    float load = 0; // from 0 to 100 [%]
+    bool taskWasExecuted_flag;
+
 
 public:
     SimpleTasker(uint8_t maxTaskAmt);
@@ -57,6 +61,9 @@ public:
      * 
      */
     void runLoop() override;
+
+    // TODO: make brief
+    float getLoad() override;
 
 
 protected:

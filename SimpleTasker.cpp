@@ -59,15 +59,31 @@ uint32_t SimpleTasker::getCurrentTime_micros()
 void SimpleTasker::runLoop()
 {
     currentTime = micros();
+    taskWasExecuted_flag = false;
 
     for (uint8_t i=0; i < amtOfTasks; i++)
     {
         if (currentTime >= tasksArray[i]->nextExecutionTime_us)
         {
-            tasksArray[i]->nextExecutionTime_us = currentTime + tasksArray[i]->interval_us;
+            // Calculate nextExecutionTime based on the previous nextExecutionTime
+            tasksArray[i]->nextExecutionTime_us += tasksArray[i]->interval_us; // This way of time calculation results in better precision
+            //tasksArray[i]->nextExecutionTime_us = currentTime + tasksArray[i]->interval_us;
+
             tasksArray[i]->execute();
+
+            // Indicate that at least one task was executed
+            taskWasExecuted_flag = true;
         }
     }
+
+    // Update load
+    load = LoadFilterBeta*load + (1-LoadFilterBeta)*(taskWasExecuted_flag ? 100.f : 0.f);
+}
+
+
+float SimpleTasker::getLoad()
+{
+    return load;
 }
 
 
