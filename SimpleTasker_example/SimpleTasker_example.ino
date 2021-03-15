@@ -49,9 +49,9 @@ class Task2 : public Task
         varTask2++;
 
         float zmienna = 5 * varTask1 + otherFunciton((float)varTask1);
-        for (int i = 0; i < varTask1; i++)
+        for (int i = 0; i < 30; i++)
         {
-            zmienna += map(zmienna, 0, varTask3, -5, 100);
+            zmienna += map(zmienna, -1, varTask3, -5, 100);
         }
     }
 };
@@ -89,6 +89,8 @@ class ShowTask : public Task
         Serial.println(varTask2);
         Serial.print("t3: ");
         Serial.println(varTask3);
+        Serial.print("Load: ");
+        Serial.println(tasker->getLoad());
 
         varTask1 = 0;
         varTask2 = 0;
