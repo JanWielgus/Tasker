@@ -26,27 +26,17 @@ SimpleTasker::~SimpleTasker()
 }
 
 
-bool SimpleTasker::addTask(Task* task, float frequency, uint16_t maxDuration)
+bool SimpleTasker::addTask(Task* task, float frequency)
 {
     if (amtOfTasks >= MaxAmtOfTasks)
         return false;
 
-    task->setProperties(frequency, maxDuration);
-
-    // TODO: handle maxDuration param
-
-    // TODO: prevent duplication in task list
+    task->setFrequency_Hz(frequency);
 
     tasksArray[amtOfTasks] = task;
     amtOfTasks++;
 
     return true;
-}
-
-
-bool SimpleTasker::addTask(Task* task, float frequency)
-{
-    return addTask(task, frequency, 0);
 }
 
 
@@ -56,7 +46,7 @@ uint32_t SimpleTasker::getCurrentTime_micros()
 }
 
 
-void SimpleTasker::runLoop()
+void SimpleTasker::loop()
 {
     currentTime = micros();
     taskWasExecuted_flag = false;
