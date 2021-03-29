@@ -79,5 +79,5 @@ float SimpleTasker::getLoad()
 
 void SimpleTasker::execute()
 {
-    runLoop();
+    loop();
 }
