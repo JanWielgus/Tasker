@@ -23,7 +23,7 @@ protected:
 
     const float LoadFilterBeta = 0.997f; // If load changes too rapidly or too slowly, adjust this value (bigger->change is slover)
     float load = 0; // from 0 to 100 [%]
-    bool taskWasExecuted_flag;
+    bool taskWasExecuted_flag; // helper in loop() method to calculate load
 
 
 public:
@@ -31,25 +31,14 @@ public:
     virtual ~SimpleTasker();
 
     /**
-     * @brief Add task and set its frequency and maxDuration.
-     * 
-     * @param task Pointer to concrete class that extend Task abstract class.
-     * @param frequency Task running frequency.
-     * @param maxDuration Measured task maxDuration (if not checked, set 0).
-     * @return false if tasks array is full and this task was not added,
-     * true otherwise.
-     */
-    bool addTask(Task* task, float frequency, uint16_t maxDuration) override;
-
-    /**
      * @brief Add task and set it's frequency.
      * 
      * @param task Pointer to concrete class that extend Task abstract class.
-     * @param frequency Task running frequency.
+     * @param frequency Task running frequency (in Hz).
      * @return false if tasks array is full and this task was not added,
      * true otherwise.
      */
-    bool addTask(Task* task, float frequency) override;
+    bool addTask(Task* task, float frequency_Hz) override;
 
     /**
      * @brief Return (almost) current time. Faster than micros().
@@ -60,7 +49,7 @@ public:
      * @brief This should be the only method in loop(). Execute one Task execution time checking.
      * 
      */
-    void runLoop() override;
+    void loop() override;
 
     // TODO: make brief
     float getLoad() override;

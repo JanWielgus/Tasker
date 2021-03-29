@@ -14,15 +14,21 @@ const float Task::Million = 1000000.f;
 Task::Task()
 {
     interval_us = 0;
-    maxDuration_us = 0;
     nextExecutionTime_us = 0;
 }
 
 
-Task::Task(float frequency, uint16_t maxDuration)
+Task::Task(float frequency)
 {
-    setProperties(frequency, maxDuration);
+    setFrequency_Hz(frequency);
     nextExecutionTime_us = 0;
+}
+
+
+void Task::setInterval_us(uint32_t interval)
+{
+    this->interval_us = interval;
+    isConfigured_flag = true;
 }
 
 
@@ -34,26 +40,25 @@ uint32_t Task::getInterval_us()
 
 float Task::getInterval_s()
 {
-    return interval_us / Million;
+    return (double)interval_us / Million;
+}
+
+
+void Task::setFrequency_Hz(float frequency)
+{
+    uint32_t interval = ((double)Million / frequency) + 0.5;
+    setInterval_us(interval);
 }
 
 
 float Task::getFrequency_Hz()
 {
-    return Million / interval_us;
-}
-
-
-void Task::setProperties(float frequency, uint16_t maxDuration)
-{
-    this->interval_us = ((double)Million / frequency) + 0.5;
-    this->maxDuration_us = maxDuration;
-    isConfiguredFlag = true;
+    return Million / (double)interval_us;
 }
 
 
 bool Task::isConfigured()
 {
-    return isConfiguredFlag;
+    return isConfigured_flag;
 }
 
