@@ -32,6 +32,7 @@ bool SimpleTasker::addTask(Task* task, float frequency)
         return false;
 
     task->setFrequency_Hz(frequency);
+    task->nextExecutionTime_us = micros();
 
     tasksArray[amtOfTasks] = task;
     amtOfTasks++;
