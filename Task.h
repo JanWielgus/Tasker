@@ -18,12 +18,12 @@
 
 class Task : public IExecutable
 {
-protected:
+private:
     uint32_t interval_us = 0; // [microseconds] time between every execution
     uint32_t nextExecutionTime_us = 0; // time since the beginning when to execute task
     bool isConfigured_flag = false; // set true when setProperties method is called
 
-    static const float Million;
+    static const uint32_t Million;
 
 
 public:
@@ -75,6 +75,20 @@ public:
      * @return true if setProperties method was called at least once.
      */
     bool isConfigured();
+
+    /**
+     * @brief Method used to pause executions of this task
+     * for some time.
+     * @param pauseTime_us time to pause execution (in microseconds).
+     */
+    void pauseExecutionFor_us(uint32_t pauseTime_us);
+
+    /**
+     * @brief Method used to pause executions of this task
+     * for some time.
+     * @param sleepTime_s time to pause execution (in seconds). 
+     */
+    void pauseExecutionFor_s(float pauseTime_s);
 
 
     friend class SimpleTasker;

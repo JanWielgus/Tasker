@@ -8,7 +8,7 @@
 #include <Task.h>
 
 
-const float Task::Million = 1000000.f;
+const uint32_t Task::Million = 1000000;
 
 
 Task::Task()
@@ -62,3 +62,14 @@ bool Task::isConfigured()
     return isConfigured_flag;
 }
 
+
+void Task::pauseExecutionFor_us(uint32_t pauseTime_us)
+{
+    nextExecutionTime_us += pauseTime_us;
+}
+
+
+void Task::pauseExecutionFor_s(float pauseTime_s)
+{
+    pauseExecutionFor_us(pauseTime_s * Million);
+}
