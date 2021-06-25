@@ -12,11 +12,10 @@
 Tasker tasker(5);
 
 
-// some shared variables between tasks
+// tasks execution counters
 int task1Counter = 0;
 int task2Counter = 0;
 int task3Counter = 0;
-int output;
 
 
 float someFunction(float zmienna)
@@ -28,13 +27,12 @@ class Task1 : public IExecutable
 {
     void execute() override
     {
-        task1Counter++;
+        task1Counter++;  // count each execution
 
+        // calculations just to spend some time
         float localVar = 1;
         for (int i = 0; i < 5; i++)
-        {
             localVar += someFunction(i);
-        }
     }
 };
 
@@ -47,25 +45,27 @@ class : public IExecutable  // you can skip class name and create instances at t
     {
         task2Counter++;
 
+        // calculations just to spend some time
         float zmienna = 5 * task1Counter + someFunction((float)task1Counter);
         for (int i = 0; i < 30; i++)
-        {
             zmienna += map(zmienna, -1, task3Counter, -5, 100);
-        }
     }
 } task2;  // another way to create task instance
 
 
 class Task3 : public IExecutable
 {
+    int output;
+
     void execute() override
     {
         task3Counter++;
 
-        if (task1Counter % 3 == 0)
+        if (task1Counter % 3 == 0)  // simulate variable duration
         {
             float var = 0;
 
+            // calculations just to spend some time
             for (int i = 0; i < 20; i++)
             {
                 var += someFunction((float)task2Counter);
@@ -107,10 +107,10 @@ void setup()
     Serial.println("Program has just started!");
 
     // Add tasks to the tasker
-    tasker.addTask_Hz(&task1, 50.f);
-    tasker.addTask_us(&task2, 2000);
-    tasker.addTask_Hz(&task3, 17.f);
-    tasker.addTask_Hz(&showTask, 1.f);
+    tasker.addTask_Hz(&task1, 50.f);  // 50 Hz
+    tasker.addTask_us(&task2, 2000);  // ! 500 Hz (interval 2000us = 1000000us / 500) (optional way to add task)
+    tasker.addTask_Hz(&task3, 17.f);  // 17 Hz
+    tasker.addTask_Hz(&showTask, 1.f);  // 1 Hz
 
     Serial.println("End of setup()");
 }
@@ -118,5 +118,5 @@ void setup()
 
 void loop()
 {
-    tasker.loop();
+    tasker.loop();  // you should update only tasker in the loop()
 }
