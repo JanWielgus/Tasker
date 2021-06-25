@@ -90,7 +90,7 @@ void Tasker::calculateNextTask()
         return;
     }
     
-    Task* nextTask = tasks;
+    nextTask = tasks;
     for (uint8_t i = 1; i < amountOfTasks; ++i)
     {
         if (tasks[i].nextExecutionTime_us < nextTask->nextExecutionTime_us)
@@ -221,15 +221,15 @@ uint32_t Tasker::getCurrentTime_micros()
 void Tasker::loop()
 {
     currentTime = micros();
-    lastTaskLoad = 0.f;
+    curTaskLoadHelper = 0.f;
 
-    if (currentTime >= nextTask->nextExecutionTime_us)
+    if (nextTask != nullptr && currentTime >= nextTask->nextExecutionTime_us)
     {
         nextTask->nextExecutionTime_us += nextTask->interval_us;
         nextTask->executable->execute();
         calculateNextTask();
-        lastTaskLoad = 100.f;
+        curTaskLoadHelper = 100.f;
     }
 
-    load = LoadFilterBeta*load + LoadFilterBetaCofactor*lastTaskLoad;
+    load = LoadFilterBeta*load + LoadFilterBetaCofactor*curTaskLoadHelper;
 }

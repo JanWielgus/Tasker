@@ -11,7 +11,10 @@
 
 #include "IExecutable.h"
 
-#include <cstdint>
+#ifdef ARDUINO
+    #include <Arduino.h>
+#endif
+
 
 class Tasker
 {
@@ -31,7 +34,7 @@ class Tasker
     const float LoadFilterBeta = 0.997f; // If load changes too rapidly or too slowly, adjust this value (bigger->change is slover)
     const float LoadFilterBetaCofactor = 1 - LoadFilterBeta;
     float load = 0.f; // from 0 to 100 [%]
-    float lastTaskLoad = 0.f; // helper in loop() method to calculate load
+    float curTaskLoadHelper = 0.f; // helper in loop() method to calculate load
 
 
 public:
