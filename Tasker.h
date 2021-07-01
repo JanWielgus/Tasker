@@ -37,6 +37,8 @@ class Tasker
     float curTaskLoadHelper = 0.f;          // helper in loop() method to calculate load
 #endif
 
+    static const uint32_t MinTaskInterval_us;  // minimal task interval (in us) - to prevent overloading
+
 
 public:
     Tasker(uint8_t maxTasksAmount);

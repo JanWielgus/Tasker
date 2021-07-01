@@ -9,6 +9,8 @@
 #include "Tasker.h"
 
 
+const uint32_t Tasker::MinTaskInterval_us = 52;
+
 Tasker::Tasker(uint8_t maxTasksAmount)
     : MaxAmtOfTasks(maxTasksAmount)
 {
@@ -31,7 +33,10 @@ bool Tasker::addTask_Hz(IExecutable* task, float frequency_Hz)
 
     Task newTask;
     newTask.executable = task;
-    newTask.interval_us = 1000000.0 / frequency_Hz + 0.5f;
+
+    uint32_t newInterval_us = 1000000.0 / frequency_Hz + 0.5f;
+    newTask.interval_us = newInterval_us < MinTaskInterval_us ? MinTaskInterval_us : newInterval_us;
+
     newTask.nextExecutionTime_us = currentTime;
 
     tasks[amountOfTasks++] = newTask;
@@ -48,7 +53,7 @@ bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us)
 
     Task newTask;
     newTask.executable = task;
-    newTask.interval_us = interval_us;
+    newTask.interval_us = interval_us < MinTaskInterval_us ? MinTaskInterval_us : interval_us;
     newTask.nextExecutionTime_us = currentTime;
 
     tasks[amountOfTasks++] = newTask;
@@ -106,6 +111,8 @@ bool Tasker::setTaskFrequency(IExecutable* task, float frequency_Hz)
         if (tasks[i].executable == task)
         {
             uint32_t newInterval_us = 1000000.0 / frequency_Hz + 0.5f;
+            newInterval_us = newInterval_us < MinTaskInterval_us ? MinTaskInterval_us : newInterval_us;
+
             tasks[i].nextExecutionTime_us += newInterval_us - tasks[i].interval_us;
             tasks[i].interval_us = newInterval_us;
             calculateNextTask();
@@ -123,6 +130,7 @@ bool Tasker::setTaskInterval_us(IExecutable* task, uint32_t interval_us)
     {
         if (tasks[i].executable == task)
         {
+            interval_us = interval_us < MinTaskInterval_us ? MinTaskInterval_us : interval_us;
             tasks[i].nextExecutionTime_us += interval_us - tasks[i].interval_us;
             tasks[i].interval_us = interval_us;
             calculateNextTask();
