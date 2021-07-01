@@ -1,8 +1,7 @@
 /**
  * @file TaskerFreqTest.ino
  * @author Jan Wielgus
- * @brief Program used to test if tasks are executed
- * with set frequency.
+ * @brief Program used to test if tasks are executed with set frequency.
  * @date 2021-06-25
  * 
  */
@@ -14,8 +13,6 @@
 const int TestTasksAmt = 5;
 const float TestTasksFreq[] = {5.f, 59.f, 200.f, 107.f, 108.f};  // Frequencies for each test task
 
-
-static_assert(TestTasksAmt == (sizeof(TestTasksFreq) / sizeof(TestTasksFreq[0])), "Provide frequency for each test task");
 float someCalculations(float var);
 
 
@@ -96,3 +93,6 @@ float someCalculations(float var)
 
     return temp;
 }
+
+
+static_assert(TestTasksAmt == (sizeof(TestTasksFreq) / sizeof(TestTasksFreq[0])), "Provide frequency for each test task");
