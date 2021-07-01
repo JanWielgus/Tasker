@@ -15,6 +15,9 @@ class IExecutable
 public:
     virtual ~IExecutable() {}
 
+    /**
+     * @brief Do some action - used in Tasker loop to be executed regularly with some frequency
+     */
     virtual void execute() = 0;
 };
 

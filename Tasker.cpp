@@ -1,6 +1,6 @@
 /**
  * @file SimpleTasker.cpp
- * @author Jan Wielgus
+ * @author Jan Wielgus & Aleksy Walczak
  * @brief 
  * @date 2020-07-31
  * 
