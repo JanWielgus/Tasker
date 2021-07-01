@@ -205,11 +205,12 @@ uint8_t Tasker::getTasksAmount()
 }
 
 
-
+#if TASKER_LOAD_CALCULATIONS == 1
 float Tasker::getLoad()
 {
     return load;
 }
+#endif
 
 
 uint32_t Tasker::getCurrentTime_micros()
