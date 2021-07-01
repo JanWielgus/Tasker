@@ -10,6 +10,7 @@
 #define TASKER_H
 
 #include "IExecutable.h"
+#include "TaskerConfig.h"
 
 #ifdef ARDUINO
     #include <Arduino.h>
@@ -31,10 +32,10 @@ class Tasker
     uint32_t currentTime = 0;       // current time (used in loop() method)
     Task* nextTask;                 // next task to check if it's triggered
 
-    const float LoadFilterBeta = 0.997f;    // If load changes too rapidly or too slowly, adjust this value (bigger->change is slover)
-    const float LoadFilterBetaCofactor = 1 - LoadFilterBeta;
+#if TASKER_LOAD_CALCULATIONS == 1
     float load = 0.f;                       // from 0 to 100 [%]
     float curTaskLoadHelper = 0.f;          // helper in loop() method to calculate load
+#endif
 
 
 public:
@@ -126,10 +127,12 @@ public:
      */
     uint8_t getTasksAmount();
 
+#if TASKER_LOAD_CALCULATIONS == 1
     /**
      * @return current tasker load
      */
     float getLoad();
+#endif
     
     /**
      * @return (almost) current time. Faster than micros() from arduino standard library.
