@@ -8,7 +8,6 @@
 
 #include <Tasker.h>
 
-
 const int MaxTasksAmt = 5;
 
 Tasker tasker(MaxTasksAmt);
