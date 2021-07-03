@@ -33,17 +33,6 @@ bool Tasker::addTask_Hz(IExecutable* task, float frequency_Hz)
 
     uint32_t newInterval_us = 1000000.0 / frequency_Hz + 0.5f;
     return addTask_us(task, newInterval_us);
-
-    Task newTask;
-    newTask.executable = task;
-    uint32_t newInterval_us = 1000000.0 / frequency_Hz + 0.5f;
-    newTask.interval_us = newInterval_us < MinTaskInterval_us ? MinTaskInterval_us : newInterval_us;
-    newTask.nextExecutionTime_us = currentTime;
-    
-    tasks[amountOfTasks++] = newTask;
-    calculateNextTask();
-
-    return true;
 }
 
 
@@ -205,7 +194,7 @@ float Tasker::getTaskInterval_s(IExecutable* task)
     for (uint8_t i = 0; i < amountOfTasks; ++i)
     {
         if (tasks[i].executable == task)
-            return 1000000.f * tasks[i].interval_us;
+            return tasks[i].interval_us / 1000000.f;
     }
     
     return -1.f;
