@@ -11,7 +11,7 @@
 
 // Config:
 const int TestTasksAmt = 5;
-const float TestTasksFreq[] = {5.f, 59.f, 200.f, 107.f, 108.f};  // Frequencies for each test task
+const float TestTasksFreq[] = {5.f, 59.f, 200.f, 107.5f, 108.f};  // Frequencies for each test task
 
 float someCalculations(float var);
 
@@ -46,16 +46,11 @@ class : public IExecutable
             Serial.print("T");
             Serial.print(i+1);
             Serial.print(": ");
-            Serial.print(testTasks[i].counter);
+            Serial.print(tasker.getTaskInterval_us(&testTasks[i]));
             Serial.print('\t');
 
             testTasks[i].counter = 0;  // reset the counter
         }
-
-        // Show load
-        Serial.print("Load: ");
-        Serial.print(tasker.getLoad());
-        Serial.print('\t');
         
         Serial.println();
     }
