@@ -31,17 +31,18 @@ bool Tasker::addTask_Hz(IExecutable* task, float frequency_Hz)
     if (amountOfTasks >= MaxAmtOfTasks || task == nullptr || frequency_Hz <= 0)
         return false;
 
+    uint32_t newInterval_us = 1000000.0 / frequency_Hz + 0.5f;
+    return addTask_us(task, newInterval_us);
+
     Task newTask;
     newTask.executable = task;
-
     uint32_t newInterval_us = 1000000.0 / frequency_Hz + 0.5f;
     newTask.interval_us = newInterval_us < MinTaskInterval_us ? MinTaskInterval_us : newInterval_us;
-
     newTask.nextExecutionTime_us = currentTime;
-
+    
     tasks[amountOfTasks++] = newTask;
-
     calculateNextTask();
+
     return true;
 }
 
@@ -57,8 +58,8 @@ bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us)
     newTask.nextExecutionTime_us = currentTime;
 
     tasks[amountOfTasks++] = newTask;
-
     calculateNextTask();
+
     return true;
 }
 
@@ -134,6 +135,7 @@ bool Tasker::setTaskInterval_us(IExecutable* task, uint32_t interval_us)
             tasks[i].nextExecutionTime_us += interval_us - tasks[i].interval_us;
             tasks[i].interval_us = interval_us;
             calculateNextTask();
+
             return true;
         }
     }
@@ -150,6 +152,7 @@ bool Tasker::pauseTask_us(IExecutable* task, uint32_t pauseTime_us)
         {
             tasks[i].nextExecutionTime_us += pauseTime_us;
             calculateNextTask();
+
             return true;
         }
     }
@@ -166,6 +169,7 @@ bool Tasker::pauseTask_s(IExecutable* task, float pauseTime_s)
         {
             tasks[i].nextExecutionTime_us += pauseTime_s * 1000000.f + 0.5f;
             calculateNextTask();
+            
             return true;
         }
     }
