@@ -15,6 +15,9 @@ class IExecutable
 public:
     virtual ~IExecutable() {}
 
+    /**
+     * @brief Do some action
+     */
     virtual void execute() = 0;
 };
 
