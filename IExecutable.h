@@ -16,7 +16,7 @@ public:
     virtual ~IExecutable() {}
 
     /**
-     * @brief Do some action - used in Tasker loop to be executed regularly with some frequency
+     * @brief Do some action
      */
     virtual void execute() = 0;
 };
