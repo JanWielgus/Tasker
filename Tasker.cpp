@@ -7,14 +7,17 @@
 
 #include "Tasker.h"
 
-
 const uint32_t Tasker::MinTaskInterval_us = 52;
+static void defaultWaitingFunction(uint32_t timeToWait);
+
 
 Tasker::Tasker(uint8_t maxTasksAmount)
     : MaxTasksAmount(maxTasksAmount)
 {
     if (MaxTasksAmount > 0)
         tasks = new Task[MaxTasksAmount];
+
+    waitingFunction = defaultWaitingFunction;
 }
 
 
@@ -150,6 +153,13 @@ uint8_t Tasker::getTasksAmount()
 }
 
 
+void Tasker::setWaitingFunction(WaitingFunction waitingFunction)
+{
+    if (waitingFunction != nullptr)
+        this->waitingFunction = waitingFunction;
+}
+
+
 #ifdef TASKER_LOAD_CALCULATIONS
 float Tasker::getLoad()
 {
@@ -190,4 +200,12 @@ Tasker::Task* Tasker::getTask(IExecutable* task)
     }
 
     return nullptr;
+}
+
+
+
+void defaultWaitingFunction(uint32_t timeToWait)
+{
+    uint32_t waitingEndTime = micros() + timeToWait;
+    while (micros() < waitingEndTime);
 }
