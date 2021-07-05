@@ -32,6 +32,10 @@ class Tasker
     uint32_t currentTime = 0;       // current time (used in loop() method)
     Task* nextTask;                 // next task to check if it's triggered
 
+    typedef void (*WaitingFunction)(uint32_t);  // parameter is max time after that function should return
+    WaitingFunction waitingFunction;            // function that wait specified amount of time
+    
+
 #ifdef TASKER_LOAD_CALCULATIONS
     float load = 0.f;                       // from 0 to 100 [%]
     float curTaskLoadHelper = 0.f;          // helper in loop() method to calculate load
@@ -131,6 +135,14 @@ public:
      */
     uint8_t getTasksAmount();
 
+    /**
+     * @brief Set function that will be waiting a specified time.
+     * @param waitingFunction Pointer to void function with one uint32_t parameter
+     * (time in microseconds to wait). It is better for this function
+     * to wait too short than too long.
+     */
+    void setWaitingFunction(WaitingFunction waitingFunction);
+
 #ifdef TASKER_LOAD_CALCULATIONS
     /**
      * @return current tasker load
@@ -175,6 +187,12 @@ inline void Tasker::loop()
         nextTask->nextExecutionTime_us += nextTask->interval_us;
         nextTask->executable->execute();
         calculateNextTask();
+
+        // Call waiting function that will spend idle time
+        int32_t timeToWait = nextTask->nextExecutionTime_us - micros(); // TODO: maybe additionally decrease by some value (or percentage)
+        if (timeToWait > 0)
+            waitingFunction(timeToWait);
+
         curTaskLoadHelper = 100.f;
     }
 
@@ -190,6 +208,11 @@ inline void Tasker::loop()
         nextTask->nextExecutionTime_us += nextTask->interval_us;
         nextTask->executable->execute();
         calculateNextTask();
+
+        // Call waiting function that will spend idle time
+        int32_t timeToWait = nextTask->nextExecutionTime_us - micros(); // TODO: maybe additionally decrease by some value (or percentage)
+        if (timeToWait > 0)
+            waitingFunction(timeToWait);
     }
 }
 #endif
