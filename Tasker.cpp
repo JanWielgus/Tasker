@@ -164,37 +164,6 @@ uint32_t Tasker::getCurrentTime_micros()
 }
 
 
-#ifdef TASKER_LOAD_CALCULATIONS
-void Tasker::loop()
-{
-    currentTime = micros();
-    curTaskLoadHelper = 0.f;
-
-    if (nextTask != nullptr && currentTime >= nextTask->nextExecutionTime_us)
-    {
-        nextTask->nextExecutionTime_us += nextTask->interval_us;
-        nextTask->executable->execute();
-        calculateNextTask();
-        curTaskLoadHelper = 100.f;
-    }
-
-    load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR * curTaskLoadHelper;
-}
-#else
-void Tasker::loop()
-{
-    currentTime = micros();
-
-    if (nextTask != nullptr && currentTime >= nextTask->nextExecutionTime_us)
-    {
-        nextTask->nextExecutionTime_us += nextTask->interval_us;
-        nextTask->executable->execute();
-        calculateNextTask();
-    }
-}
-#endif
-
-
 void Tasker::calculateNextTask()
 {
     if (tasksAmount == 0)
