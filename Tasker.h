@@ -26,22 +26,22 @@ class Tasker
         uint32_t nextExecutionTime_us;
     };
 
-    const uint8_t MaxTasksAmount;   // max amount of tasks
-    Task* tasks;                    // array of MaxTasksAmount length
-    uint8_t tasksAmount = 0;        // current amount of tasks (at most MaxTasksAmount)
-    uint32_t currentTime = 0;       // current time (used in loop() method)
-    Task* nextTask;                 // next task to check if it's triggered
+    const uint8_t MaxTasksAmount;
+    Task* tasks;                            // array of MaxTasksAmount length
+    uint8_t tasksAmount = 0;                // current amount of tasks (at most MaxTasksAmount)
+    uint32_t lastExecStartTime = 0;         // execution time of the last executed task
+    Task* nextTask = nullptr;               // task that is calculated to be executed next
 
-    typedef void (*WaitingFunction)(uint32_t);  // parameter is max time after that function should return
-    WaitingFunction waitingFunction;            // function that wait specified amount of time
+    typedef void (*SleepingFunction)(uint32_t);     // function which argument is max time after that function should return
+    SleepingFunction sleepingFunction;              // function that wait specified amount of time
     
 
 #ifdef TASKER_LOAD_CALCULATIONS
-    float load = 0.f;                       // from 0 to 100 [%]
-    float curTaskLoadHelper = 0.f;          // helper in loop() method to calculate load
+    float load = 0.f;                       // from 0 to 1
 #endif
 
     static const uint32_t MinTaskInterval_us;  // minimal task interval (in us) - to prevent overloading
+    static const uint8_t SleepingTimeBias;
 
 
 public:
@@ -136,24 +136,24 @@ public:
     uint8_t getTasksAmount();
 
     /**
-     * @brief Set function that will be waiting a specified time.
-     * @param waitingFunction Pointer to void function with one uint32_t parameter
+     * @brief (optional) Set your own function that will return after specified time.
+     * @param sleepingFunction Pointer to void function with one uint32_t parameter
      * (time in microseconds to wait). It is better for this function
      * to wait too short than too long.
      */
-    void setWaitingFunction(WaitingFunction waitingFunction);
+    void setSleepingFunction(SleepingFunction sleepingFunction);
 
-#ifdef TASKER_LOAD_CALCULATIONS
     /**
-     * @return current tasker load
+     * @return current tasker load (from 0 to 100 [%])
+     * (this feature could be enabled or disabled in TaskerConfig.h file)
      */
     float getLoad();
-#endif
     
     /**
-     * @return (almost) current time. Faster than micros() from arduino standard library
+     * @return Execution start time of the last executed task (almost current time).
+     * Faster than micros() from arduino standard library.
      */
-    uint32_t getCurrentTime_micros();
+    uint32_t getExecStartTime_us();
 
     /**
      * @brief This should be the only method in arduino's loop()
@@ -163,57 +163,47 @@ public:
 
 private:
     /**
-     * @brief This method calculates which task is going to be firstly executed
+     * @brief This method calculates which task is going to be firstly executed.
      */
     void calculateNextTask();
 
     /**
      * @param task Previously added task whose Task structure you want to get
-     * @return nullptr if task not found
-     * Task structure of given task otherwise
+     * @return Task mathing the argument or nullptr if was not found.
      */
     Task* getTask(IExecutable* task);
 };
 
 
-#ifdef TASKER_LOAD_CALCULATIONS
+
 inline void Tasker::loop()
 {
-    currentTime = micros();
-    curTaskLoadHelper = 0.f;
+    uint32_t loopStartTime = micros();
 
-    if (nextTask != nullptr && currentTime >= nextTask->nextExecutionTime_us)
+    if (nextTask != nullptr && loopStartTime >= nextTask->nextExecutionTime_us)
     {
-        nextTask->nextExecutionTime_us += nextTask->interval_us;
+        lastExecStartTime = loopStartTime;
         nextTask->executable->execute();
+        #ifdef TASKER_LOAD_CALCULATIONS
+        uint32_t lastExecEndTime = micros();
+        #endif
+
+        nextTask->nextExecutionTime_us += nextTask->interval_us;
         calculateNextTask();
 
-        // Call waiting function that will spend idle time
-        int32_t timeToWait = nextTask->nextExecutionTime_us - micros(); // TODO: maybe additionally decrease by some value (or percentage)
-        if (timeToWait > 0)
-            waitingFunction(timeToWait);
+        // Call sleeping function that will spend idle time
+        int32_t timeToSleep = nextTask->nextExecutionTime_us - micros();
+        if (timeToSleep > SleepingTimeBias)
+            sleepingFunction(timeToSleep - SleepingTimeBias);
 
-        curTaskLoadHelper = 100.f;
-    }
-
-    load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR * curTaskLoadHelper;
-}
-#else
-inline void Tasker::loop()
-{
-    currentTime = micros();
-
-    if (nextTask != nullptr && currentTime >= nextTask->nextExecutionTime_us)
-    {
-        nextTask->nextExecutionTime_us += nextTask->interval_us;
-        nextTask->executable->execute();
-        calculateNextTask();
-
-        // Call waiting function that will spend idle time
-        int32_t timeToWait = nextTask->nextExecutionTime_us - micros(); // TODO: maybe additionally decrease by some value (or percentage)
-        if (timeToWait > 0)
-            waitingFunction(timeToWait);
+        #ifdef TASKER_LOAD_CALCULATIONS
+        if (timeToSleep > 0)
+            load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR * ((lastExecEndTime-lastExecStartTime) / timeToSleep);
+        else
+            load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR * 1.f;
+        #endif
     }
 }
-#endif
+
+
 #endif

@@ -8,7 +8,8 @@
 #include "Tasker.h"
 
 const uint32_t Tasker::MinTaskInterval_us = 52;
-static void defaultWaitingFunction(uint32_t timeToWait);
+const uint8_t Tasker::SleepingTimeBias = 40;
+static void defaultSleepingFunction(uint32_t timeToSleep);
 
 
 Tasker::Tasker(uint8_t maxTasksAmount)
@@ -17,7 +18,7 @@ Tasker::Tasker(uint8_t maxTasksAmount)
     if (MaxTasksAmount > 0)
         tasks = new Task[MaxTasksAmount];
 
-    waitingFunction = defaultWaitingFunction;
+    sleepingFunction = defaultSleepingFunction;
 }
 
 
@@ -46,7 +47,7 @@ bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us)
     Task newTask;
     newTask.executable = task;
     newTask.interval_us = interval_us < MinTaskInterval_us ? MinTaskInterval_us : interval_us;
-    newTask.nextExecutionTime_us = currentTime;
+    newTask.nextExecutionTime_us = lastExecStartTime;
 
     tasks[tasksAmount++] = newTask;
     calculateNextTask();
@@ -153,24 +154,26 @@ uint8_t Tasker::getTasksAmount()
 }
 
 
-void Tasker::setWaitingFunction(WaitingFunction waitingFunction)
+void Tasker::setSleepingFunction(SleepingFunction sleepingFunction)
 {
-    if (waitingFunction != nullptr)
-        this->waitingFunction = waitingFunction;
+    if (sleepingFunction != nullptr)
+        this->sleepingFunction = sleepingFunction;
 }
 
 
-#ifdef TASKER_LOAD_CALCULATIONS
 float Tasker::getLoad()
 {
-    return load;
+    #ifdef TASKER_LOAD_CALCULATIONS
+    return load * 100.f;
+    #else
+    return 0.f;
+    #endif
 }
-#endif
 
 
-uint32_t Tasker::getCurrentTime_micros()
+uint32_t Tasker::getExecStartTime_us()
 {
-    return currentTime;
+    return lastExecStartTime;
 }
 
 
@@ -204,8 +207,8 @@ Tasker::Task* Tasker::getTask(IExecutable* task)
 
 
 
-void defaultWaitingFunction(uint32_t timeToWait)
+void defaultSleepingFunction(uint32_t timeToSleep)
 {
-    uint32_t waitingEndTime = micros() + timeToWait;
-    while (micros() < waitingEndTime);
+    uint32_t sleepingEndTime = micros() + timeToSleep;
+    while (micros() < sleepingEndTime);
 }
