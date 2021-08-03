@@ -7,14 +7,18 @@
 
 #include "Tasker.h"
 
-
 const uint32_t Tasker::MinTaskInterval_us = 52;
+const uint8_t Tasker::SleepingTimeBias = 40;
+static void defaultSleepingFunction(uint32_t timeToSleep);
+
 
 Tasker::Tasker(uint8_t maxTasksAmount)
     : MaxTasksAmount(maxTasksAmount)
 {
     if (MaxTasksAmount > 0)
         tasks = new Task[MaxTasksAmount];
+
+    sleepingFunction = defaultSleepingFunction;
 }
 
 
@@ -43,7 +47,7 @@ bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us)
     Task newTask;
     newTask.executable = task;
     newTask.interval_us = interval_us < MinTaskInterval_us ? MinTaskInterval_us : interval_us;
-    newTask.nextExecutionTime_us = currentTime;
+    newTask.nextExecutionTime_us = lastTaskExecutionTime;
 
     tasks[tasksAmount++] = newTask;
     calculateNextTask();
@@ -150,17 +154,26 @@ uint8_t Tasker::getTasksAmount()
 }
 
 
-#ifdef TASKER_LOAD_CALCULATIONS
+void Tasker::setSleepingFunction(SleepingFunction sleepingFunction)
+{
+    if (sleepingFunction != nullptr)
+        this->sleepingFunction = sleepingFunction;
+}
+
+
 float Tasker::getLoad()
 {
-    return load;
+    #ifdef TASKER_LOAD_CALCULATIONS
+    return load * 100.f;
+    #else
+    return 0.f;
+    #endif
 }
-#endif
 
 
-uint32_t Tasker::getCurrentTime_micros()
+uint32_t Tasker::getLastTaskExecutionTime_us()
 {
-    return currentTime;
+    return lastTaskExecutionTime;
 }
 
 
@@ -190,4 +203,12 @@ Tasker::Task* Tasker::getTask(IExecutable* task)
     }
 
     return nullptr;
+}
+
+
+
+void defaultSleepingFunction(uint32_t timeToSleep)
+{
+    uint32_t sleepingEndTime = micros() + timeToSleep;
+    while (micros() < sleepingEndTime);
 }
