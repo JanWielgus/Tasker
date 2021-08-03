@@ -8,14 +8,13 @@
 #include "Tasker.h"
 
 const uint32_t Tasker::MinTaskInterval_us = 52;
-const uint8_t Tasker::SleepingTimeBias = 40;
+const uint8_t Tasker::SleepTimeMargin_us = 40;
 
 #ifdef PROCESSOR_OVERLOAD_CALLBACK
-const uint32_t Tasker::SleepingTimeTreshold_us = -10000;
+const uint32_t Tasker::SystemOverloadedSleepingTime_us = -1000;
 #endif
 
 static void defaultSleepingFunction(uint32_t timeToSleep);
-
 static void defaultProcessorOverloadCallback();
 
 

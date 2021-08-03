@@ -27,10 +27,10 @@ class Tasker
     };
 
     const uint8_t MaxTasksAmount;
-    Task* tasks;                            // array of MaxTasksAmount length
-    uint8_t tasksAmount = 0;                // current amount of tasks (at most MaxTasksAmount)
+    Task* tasks;                            // array of tasks (MaxTasksAmount length)
+    uint8_t tasksAmount = 0;                // current amount of tasks in array (at most MaxTasksAmount)
     uint32_t lastTaskExecutionTime = 0;     // execution time of the last executed task
-    Task* nextTask = nullptr;               // task that is calculated to be executed next
+    Task* nextTask = nullptr;               // task that will be executed next or nullptr
 
     typedef void (*SleepingFunction)(uint32_t);     // function which argument is max time after that function should return
 #ifdef SLEEPING_FUNCTION
@@ -47,10 +47,10 @@ class Tasker
 #endif
 
     static const uint32_t MinTaskInterval_us;  // minimal task interval (in us) - to prevent overloading
-    static const uint8_t SleepingTimeBias;
+    static const uint8_t SleepTimeMargin_us;
 
 #ifdef PROCESSOR_OVERLOAD_CALLBACK
-    static const uint32_t SleepingTimeTreshold_us;  // negative time in us
+    static const uint32_t SystemOverloadedSleepingTime_us;  // value below which system is considered as overloaded (in us) // TODO: improve name of this variable
 #endif
 
 public:
@@ -58,102 +58,104 @@ public:
     ~Tasker();
 
     /**
-     * @brief Add task and set it's execution frequency
-     * @param task Pointer to concrete class that implements IExecutable interface.
+     * @brief Add task and set it's execution frequency.
+     * @param task Pointer to instance of class that implements IExecutable interface.
      * @param frequency Task running frequency (in Hz).
-     * @return true only if the task was successfully added
+     * @return true only if the task was successfully added,
+     * false otherwise.
      */
     bool addTask_Hz(IExecutable* task, float frequency_Hz);
 
     /**
-     * @brief Add task and set it's interval - time between two nearest executions
-     * @param task Pointer to concrete class that implements IExecutable interface.
+     * @brief Add task and set it's interval (time between two nearest executions).
+     * @param task Pointer to instance of class that implements IExecutable interface.
      * @param interval_us Task running interval (in us).
-     * @return true if the task was successfully added,
-     * false otherwise
+     * @return true if the task was successfully added, false otherwise.
      */
     bool addTask_us(IExecutable* task, uint32_t interval_us);
 
     /**
-     * @brief Remove task from the tasker
-     * @param task Task to remove
-     * @return false if the task not found,
-     * otherwise true
+     * @brief Remove task from the tasker.
+     * @param task Task to remove.
+     * @return false if the task not found, otherwise true.
      */
     bool removeTask(IExecutable* task);
 
     /**
-     * @brief Set task's frequency (in Hz) 
+     * @brief Change frequency of currently running task.
      * @param task Previously added task which frequency you want to change.
-     * @param frequency_Hz New frequency (in Hz)
+     * @param frequency_Hz New frequency (in Hz).
      * @return false if the task not found,
-     * otherwise true
+     * otherwise true.
      */
     bool setTaskFrequency(IExecutable* task, float frequency_Hz);
 
     /**
-     * @brief Set task's interval (in us) - the time between two nearest task's executions
+     * @brief Change interval (time between two nearest executions)
+     * of currently running task.
      * @param task Previously added task which interval you want to change.
-     * @param interval_us New interval (in us)
-     * @return false if the task not found,
-     * otherwise true
+     * @param interval_us New interval (in us).
+     * @return false if the task not found, otherwise true.
      */
     bool setTaskInterval_us(IExecutable* task, uint32_t interval_us);
 
     /**
-     * @brief Pause task for a specified time (in us)
+     * @brief Pause currently running task for a specified time (in us).
      * @param task Previously added task you want to pause.
-     * @param pauseTime_us Time for task to be paused (in us)
-     * @return false if the task not found,
-     * otherwise true
+     * @param pauseTime_us Time (in us) after which task execution
+     * will be continued.
+     * @return false if the task not found, otherwise true.
      */
     bool pauseTask_us(IExecutable* task, uint32_t pauseTime_us);
 
     /**
-     * @brief Pause task for a specified time (in s)
-     * @param task Previously added task you want to pause
-     * @param pauseTime_us Time for task to be paused (in s)
-     * @return false if the task not found,
-     * otherwise true
+     * @brief Pause currentlly running task for a specified time (in seconds).
+     * @param task Previously added task you want to pause.
+     * @param pauseTime_us Time (in seconds) after which task execution
+     * will be continued.
+     * @return false if the task not found, otherwise true.
      */
     bool pauseTask_s(IExecutable* task, float pauseTime_s);
 
     /**
-     * @param task Previously added task whose frequency you want to check
-     * @return -1 if task isn't added to the tasker,
-     * frequency (in Hz) of given task otherwise  
+     * @param task Previously added task whose frequency (in Hz) you want to check.
+     * @return frequency (in Hz) of given task or
+     * -1 if task hasn't been added to the tasker.
      */
     float getTaskFrequency_Hz(IExecutable* task);
 
     /**
-     * @param task Previously added task whose interval (in us) you want to check
-     * @return -1 (max int) if task isn't added to the tasker,
-     * interval (in us) of given task otherwise
+     * @param task Previously added task whose interval (in us) you want to check.
+     * @return interval (in us) of given task or
+     * -1 (max uint32_t) if task hasn't been added to the tasker.
      */
     uint32_t getTaskInterval_us(IExecutable* task);
 
     /**
-     * @param task Previously added task whose interval (in s) you want to check
-     * @return -1 if task isn't added to the tasker,
-     * interval (in s) of given task otherwise 
+     * @param task Previously added task whose interval (in s) you want to check.
+     * @return interval (in s) of given task or
+     * -1 if task hasn't been added to the tasker.
      */
     float getTaskInterval_s(IExecutable* task);
 
     /**
-     * @return current tasks amount 
+     * @return current tasks amount.
      */
     uint8_t getTasksAmount();
 
     /**
-     * @brief (optional) Set your own function that will return after specified time.
+     * @brief Set your own function that will return after specified time
+     * (intention is to sleep processor to use less power)
+     * (this feature could be enabled or disabled in TaskerConfig.h file)
      * @param sleepingFunction Pointer to void function with one uint32_t parameter
-     * (time in microseconds to wait). It is better for this function
+     * (time in microseconds to wait). It is much better for this function
      * to wait too short than too long.
      */
     void setSleepingFunction(SleepingFunction sleepingFunction);
 
     /**
-     * @brief (optional) Set your own callback function executed when processor overloads
+     * @brief Set your own callback function executed when processor is overloaded
+     * (this feature could be enabled or disabled in TaskerConfig.h file).
      */
     void setProcessorOverloadCallback(VoidFunction setProcessorOverloadCallback);
 
@@ -164,25 +166,26 @@ public:
     float getLoad();
     
     /**
-     * @return Execution start time of the last executed task (almost current time).
-     * Faster than micros() from arduino standard library.
+     * @return Execution start time of the last executed task
+     * (almost current time). Faster than Arduino micros().
      */
     uint32_t getLastTaskExecutionTime_us();
 
     /**
-     * @brief This should be the only method in arduino's loop()
+     * @brief This should be the only method in arduino's loop().
+     * Organizes all tasker work.
      */
     void loop();
 
 
 private:
     /**
-     * @brief This method calculates which task is going to be firstly executed.
+     * @brief This method calculates which task is going to be executed next.
      */
     void calculateNextTask();
 
     /**
-     * @param task Previously added task whose Task structure you want to get
+     * @param task Previously added task whose information you want to get.
      * @return Task mathing the argument or nullptr if was not found.
      */
     Task* getTask(IExecutable* task);
@@ -198,32 +201,33 @@ inline void Tasker::loop()
     {
         lastTaskExecutionTime = loopStartTime;
         nextTask->executable->execute();
-#ifdef TASKER_LOAD_CALCULATIONS
+    #ifdef TASKER_LOAD_CALCULATIONS
         uint32_t lastExecEndTime = micros();
-#endif
+    #endif
 
         nextTask->nextExecutionTime_us += nextTask->interval_us;
         calculateNextTask();
 
-        // Call sleeping function that will spend idle time
+    #if defined(SLEEPING_FUNCTION) || defined(TASKER_LOAD_CALCULATIONS) || defined(PROCESSOR_OVERLOAD_CALLBACK)
         int32_t timeToSleep = nextTask->nextExecutionTime_us - micros();
+    #endif
 
-#ifdef TASKER_LOAD_CALCULATIONS
+    #ifdef TASKER_LOAD_CALCULATIONS
         if (timeToSleep > 0)
             load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR * ((lastExecEndTime-lastTaskExecutionTime) / timeToSleep);
         else
-            load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR;
-#endif
+            load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR/* *1.f */;
+    #endif
 
-#ifdef PROCESSOR_OVERLOAD_CALLBACK
-        if (timeToSleep < SleepingTimeTreshold_us)
+    #ifdef PROCESSOR_OVERLOAD_CALLBACK
+        if (timeToSleep < SystemOverloadedSleepingTime_us)
             processorOverloadCallback();
-#endif
+    #endif
 
-#ifdef SLEEPING_FUNCTION
-        if (timeToSleep > SleepingTimeBias)
-            sleepingFunction(timeToSleep - SleepingTimeBias);
-#endif
+    #ifdef SLEEPING_FUNCTION
+        if (timeToSleep > SleepTimeMargin_us)
+            sleepingFunction(timeToSleep - SleepTimeMargin_us);
+    #endif
         
     }
 }
