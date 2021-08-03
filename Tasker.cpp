@@ -47,7 +47,7 @@ bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us)
     Task newTask;
     newTask.executable = task;
     newTask.interval_us = interval_us < MinTaskInterval_us ? MinTaskInterval_us : interval_us;
-    newTask.nextExecutionTime_us = lastExecStartTime;
+    newTask.nextExecutionTime_us = lastTaskExecutionTime;
 
     tasks[tasksAmount++] = newTask;
     calculateNextTask();
@@ -171,9 +171,9 @@ float Tasker::getLoad()
 }
 
 
-uint32_t Tasker::getExecStartTime_us()
+uint32_t Tasker::getLastTaskExecutionTime_us()
 {
-    return lastExecStartTime;
+    return lastTaskExecutionTime;
 }
 
 

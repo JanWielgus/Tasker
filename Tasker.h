@@ -29,7 +29,7 @@ class Tasker
     const uint8_t MaxTasksAmount;
     Task* tasks;                            // array of MaxTasksAmount length
     uint8_t tasksAmount = 0;                // current amount of tasks (at most MaxTasksAmount)
-    uint32_t lastExecStartTime = 0;         // execution time of the last executed task
+    uint32_t lastTaskExecutionTime = 0;     // execution time of the last executed task
     Task* nextTask = nullptr;               // task that is calculated to be executed next
 
     typedef void (*SleepingFunction)(uint32_t);     // function which argument is max time after that function should return
@@ -153,7 +153,7 @@ public:
      * @return Execution start time of the last executed task (almost current time).
      * Faster than micros() from arduino standard library.
      */
-    uint32_t getExecStartTime_us();
+    uint32_t getLastTaskExecutionTime_us();
 
     /**
      * @brief This should be the only method in arduino's loop()
@@ -182,7 +182,7 @@ inline void Tasker::loop()
 
     if (nextTask != nullptr && loopStartTime >= nextTask->nextExecutionTime_us)
     {
-        lastExecStartTime = loopStartTime;
+        lastTaskExecutionTime = loopStartTime;
         nextTask->executable->execute();
         #ifdef TASKER_LOAD_CALCULATIONS
         uint32_t lastExecEndTime = micros();
@@ -198,10 +198,11 @@ inline void Tasker::loop()
 
         #ifdef TASKER_LOAD_CALCULATIONS
         if (timeToSleep > 0)
-            load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR * ((lastExecEndTime-lastExecStartTime) / timeToSleep);
+            load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR * ((lastExecEndTime-lastTaskExecutionTime) / timeToSleep);
         else
-            load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR * 1.f;
+            load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR;
         #endif
+        
     }
 }
 
