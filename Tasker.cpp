@@ -9,7 +9,14 @@
 
 const uint32_t Tasker::MinTaskInterval_us = 52;
 const uint8_t Tasker::SleepingTimeBias = 40;
+
+#ifdef PROCESSOR_OVERLOAD_CALLBACK
+const uint32_t Tasker::SleepingTimeTreshold_us = -10000;
+#endif
+
 static void defaultSleepingFunction(uint32_t timeToSleep);
+
+static void defaultProcessorOverloadCallback();
 
 
 Tasker::Tasker(uint8_t maxTasksAmount)
@@ -18,7 +25,14 @@ Tasker::Tasker(uint8_t maxTasksAmount)
     if (MaxTasksAmount > 0)
         tasks = new Task[MaxTasksAmount];
 
+#ifdef SLEEPING_FUNCTION
     sleepingFunction = defaultSleepingFunction;
+#endif
+
+#ifdef PROCESSOR_OVERLOAD_CALLBACK
+    processorOverloadCallback = defaultProcessorOverloadCallback;
+#endif
+
 }
 
 
@@ -139,6 +153,7 @@ uint32_t Tasker::getTaskInterval_us(IExecutable* task)
     return t->interval_us;
 }
 
+
 float Tasker::getTaskInterval_s(IExecutable* task) 
 {
     Task* t = getTask(task);
@@ -148,6 +163,7 @@ float Tasker::getTaskInterval_s(IExecutable* task)
     return t->interval_us / 1000000.f;
 }
 
+
 uint8_t Tasker::getTasksAmount() 
 {
     return tasksAmount;
@@ -156,18 +172,29 @@ uint8_t Tasker::getTasksAmount()
 
 void Tasker::setSleepingFunction(SleepingFunction sleepingFunction)
 {
+#ifdef SLEEPING_FUNCTION
     if (sleepingFunction != nullptr)
         this->sleepingFunction = sleepingFunction;
+#endif
+}
+
+
+void Tasker::setProcessorOverloadCallback(VoidFunction processorOverloadCallback)
+{
+#ifdef PROCESSOR_OVERLOAD_CALLBACK
+    if (setProcessorOverloadCallback != nullptr)
+        this->processorOverloadCallback = processorOverloadCallback;
+#endif
 }
 
 
 float Tasker::getLoad()
 {
-    #ifdef TASKER_LOAD_CALCULATIONS
+#ifdef TASKER_LOAD_CALCULATIONS
     return load * 100.f;
-    #else
+#else
     return 0.f;
-    #endif
+#endif
 }
 
 
@@ -206,9 +233,13 @@ Tasker::Task* Tasker::getTask(IExecutable* task)
 }
 
 
-
 void defaultSleepingFunction(uint32_t timeToSleep)
 {
     uint32_t sleepingEndTime = micros() + timeToSleep;
     while (micros() < sleepingEndTime);
+}
+
+
+void defaultProcessorOverloadCallback()
+{
 }

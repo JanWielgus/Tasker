@@ -33,8 +33,14 @@ class Tasker
     Task* nextTask = nullptr;               // task that is calculated to be executed next
 
     typedef void (*SleepingFunction)(uint32_t);     // function which argument is max time after that function should return
+#ifdef SLEEPING_FUNCTION
     SleepingFunction sleepingFunction;              // function that wait specified amount of time
-    
+#endif
+
+    typedef void (*VoidFunction)();
+#ifdef PROCESSOR_OVERLOAD_CALLBACK
+    VoidFunction processorOverloadCallback;
+#endif
 
 #ifdef TASKER_LOAD_CALCULATIONS
     float load = 0.f;                       // from 0 to 1
@@ -43,6 +49,9 @@ class Tasker
     static const uint32_t MinTaskInterval_us;  // minimal task interval (in us) - to prevent overloading
     static const uint8_t SleepingTimeBias;
 
+#ifdef PROCESSOR_OVERLOAD_CALLBACK
+    static const uint32_t SleepingTimeTreshold_us;  // negative time in us
+#endif
 
 public:
     Tasker(uint8_t maxTasksAmount);
@@ -144,6 +153,11 @@ public:
     void setSleepingFunction(SleepingFunction sleepingFunction);
 
     /**
+     * @brief (optional) Set your own callback function executed when processor overloads
+     */
+    void setProcessorOverloadCallback(VoidFunction setProcessorOverloadCallback);
+
+    /**
      * @return current tasker load (from 0 to 100 [%])
      * (this feature could be enabled or disabled in TaskerConfig.h file)
      */
@@ -184,24 +198,32 @@ inline void Tasker::loop()
     {
         lastTaskExecutionTime = loopStartTime;
         nextTask->executable->execute();
-        #ifdef TASKER_LOAD_CALCULATIONS
+#ifdef TASKER_LOAD_CALCULATIONS
         uint32_t lastExecEndTime = micros();
-        #endif
+#endif
 
         nextTask->nextExecutionTime_us += nextTask->interval_us;
         calculateNextTask();
 
         // Call sleeping function that will spend idle time
         int32_t timeToSleep = nextTask->nextExecutionTime_us - micros();
-        if (timeToSleep > SleepingTimeBias)
-            sleepingFunction(timeToSleep - SleepingTimeBias);
 
-        #ifdef TASKER_LOAD_CALCULATIONS
+#ifdef TASKER_LOAD_CALCULATIONS
         if (timeToSleep > 0)
             load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR * ((lastExecEndTime-lastTaskExecutionTime) / timeToSleep);
         else
             load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR;
-        #endif
+#endif
+
+#ifdef PROCESSOR_OVERLOAD_CALLBACK
+        if (timeToSleep < SleepingTimeTreshold_us)
+            processorOverloadCallback();
+#endif
+
+#ifdef SLEEPING_FUNCTION
+        if (timeToSleep > SleepingTimeBias)
+            sleepingFunction(timeToSleep - SleepingTimeBias);
+#endif
         
     }
 }
