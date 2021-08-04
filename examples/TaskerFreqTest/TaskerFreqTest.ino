@@ -11,7 +11,8 @@
 
 // Config:
 const int TestTasksAmt = 5;
-const float TestTasksFreq[] = {5.f, 59.f, 200.f, 107.5f, 108.f};  // Frequencies for each test task
+const float TestTasksFreq[] = {5.f, 59.f, 200.f, 107.5f, 108.f};  // frequencies for each test task
+const float ResultsTaskFreq = 0.5f;
 
 float someCalculations(float var);
 
@@ -19,8 +20,8 @@ float someCalculations(float var);
 class TestTask : public IExecutable
 {
 public:
-    long counter = 0;
-    float dumb; // does nothing
+    volatile long counter = 0;
+    volatile float dumb; // does nothing
 
 private:
     void execute() override
@@ -46,7 +47,7 @@ class : public IExecutable
             Serial.print("T");
             Serial.print(i+1);
             Serial.print(": ");
-            Serial.print(tasker.getTaskInterval_us(&testTasks[i]));
+            Serial.print(testTasks[i].counter * ResultsTaskFreq);
             Serial.print('\t');
 
             testTasks[i].counter = 0;  // reset the counter
@@ -66,7 +67,7 @@ void setup()
     for (int i = 0; i < TestTasksAmt; i++)
         tasker.addTask_Hz(&testTasks[i], TestTasksFreq[i]);
 
-    tasker.addTask_Hz(&resultsTask, 1.f);  // 1 Hz
+    tasker.addTask_Hz(&resultsTask, ResultsTaskFreq);
 
     Serial.println("End of setup()");
 }

@@ -15,7 +15,7 @@ Tasker tasker(MaxTasksAmt);
 
 class ExampleTask1 : public IExecutable
 {
-    void execute() override  // remember to override execute() method in each task
+    void execute() override  // override execute() method in each task
     {
         Serial.println("Executed example task 1!");
     }
