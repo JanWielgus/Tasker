@@ -32,9 +32,9 @@ class Tasker
     uint32_t lastTaskExecutionTime = 0;     // execution time of the last executed task
     Task* nextTask = nullptr;               // task that will be executed next or nullptr
 
-    typedef void (*SleepingFunction)(uint32_t);     // function which argument is max time after that function should return
-#ifdef SLEEPING_FUNCTION
-    SleepingFunction sleepingFunction;              // function that wait specified amount of time
+    typedef void (*SleepFunction)(uint32_t);    // function with one argument (max time after that function should return)
+#ifdef SLEEP_FUNCTION
+    SleepFunction sleepFunction;                // function that wait specified amount of time
 #endif
 
     typedef void (*VoidFunction)();
@@ -50,7 +50,7 @@ class Tasker
     static const uint8_t SleepTimeMargin_us;
 
 #ifdef PROCESSOR_OVERLOAD_CALLBACK
-    static const uint32_t SystemOverloadedSleepingTime_us;  // value below which system is considered as overloaded (in us) // TODO: improve name of this variable
+    static const uint32_t SystemOverloadedSleepTime_us;  // value below which system is considered as overloaded (in us) // TODO: improve name of this variable
 #endif
 
 public:
@@ -147,11 +147,11 @@ public:
      * @brief Set your own function that will return after specified time
      * (intention is to sleep processor to use less power)
      * (this feature could be enabled or disabled in TaskerConfig.h file)
-     * @param sleepingFunction Pointer to function with one uint32_t parameter
+     * @param sleepFunction Pointer to function with one uint32_t parameter
      * (time in microseconds to wait) that return void. It is much better
      * for this function to wait too short than too long.
      */
-    void setSleepingFunction(SleepingFunction sleepingFunction);
+    void setSleepFunction(SleepFunction sleepFunction);
 
     /**
      * @brief Set your own callback function executed when processor is overloaded
@@ -208,7 +208,7 @@ inline void Tasker::loop()
         nextTask->nextExecutionTime_us += nextTask->interval_us;
         calculateNextTask();
 
-    #if defined(SLEEPING_FUNCTION) || defined(TASKER_LOAD_CALCULATIONS) || defined(PROCESSOR_OVERLOAD_CALLBACK)
+    #if defined(SLEEP_FUNCTION) || defined(TASKER_LOAD_CALCULATIONS) || defined(PROCESSOR_OVERLOAD_CALLBACK)
         int32_t timeToSleep = nextTask->nextExecutionTime_us - micros();
     #endif
 
@@ -220,13 +220,13 @@ inline void Tasker::loop()
     #endif
 
     #ifdef PROCESSOR_OVERLOAD_CALLBACK
-        if (timeToSleep < SystemOverloadedSleepingTime_us)
+        if (timeToSleep < SystemOverloadedSleepTime_us)
             processorOverloadCallback();
     #endif
 
-    #ifdef SLEEPING_FUNCTION
+    #ifdef SLEEP_FUNCTION
         if (timeToSleep > SleepTimeMargin_us)
-            sleepingFunction(timeToSleep - SleepTimeMargin_us);
+            sleepFunction(timeToSleep - SleepTimeMargin_us);
     #endif
     }
 }
