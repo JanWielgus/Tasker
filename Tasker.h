@@ -147,9 +147,9 @@ public:
      * @brief Set your own function that will return after specified time
      * (intention is to sleep processor to use less power)
      * (this feature could be enabled or disabled in TaskerConfig.h file)
-     * @param sleepingFunction Pointer to void function with one uint32_t parameter
-     * (time in microseconds to wait). It is much better for this function
-     * to wait too short than too long.
+     * @param sleepingFunction Pointer to function with one uint32_t parameter
+     * (time in microseconds to wait) that return void. It is much better
+     * for this function to wait too short than too long.
      */
     void setSleepingFunction(SleepingFunction sleepingFunction);
 
@@ -216,7 +216,7 @@ inline void Tasker::loop()
         if (timeToSleep > 0)
             load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR * ((lastExecEndTime-lastTaskExecutionTime) / timeToSleep);
         else
-            load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR/* *1.f */;
+            load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR/* *1.f */; // 100% load
     #endif
 
     #ifdef PROCESSOR_OVERLOAD_CALLBACK
@@ -228,7 +228,6 @@ inline void Tasker::loop()
         if (timeToSleep > SleepTimeMargin_us)
             sleepingFunction(timeToSleep - SleepTimeMargin_us);
     #endif
-        
     }
 }
 

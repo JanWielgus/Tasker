@@ -181,7 +181,7 @@ void Tasker::setSleepingFunction(SleepingFunction sleepingFunction)
 void Tasker::setProcessorOverloadCallback(VoidFunction processorOverloadCallback)
 {
 #ifdef PROCESSOR_OVERLOAD_CALLBACK
-    if (setProcessorOverloadCallback != nullptr)
+    if (processorOverloadCallback != nullptr)
         this->processorOverloadCallback = processorOverloadCallback;
 #endif
 }
