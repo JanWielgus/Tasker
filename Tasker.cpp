@@ -18,10 +18,9 @@ Tasker::Tasker(uint8_t maxTasksAmount)
     if (MaxTasksAmount > 0)
         tasks = new Task[MaxTasksAmount];
 
-#ifdef SLEEP_FUNCTION
-    sleepFunction = defaultSleepFunction;
-#endif
-
+    #ifdef SLEEP_FUNCTION
+        sleepFunction = defaultSleepFunction;
+    #endif
 }
 
 
@@ -161,20 +160,20 @@ uint8_t Tasker::getTasksAmount()
 
 void Tasker::setSleepFunction(SleepFunction sleepFunction)
 {
-#ifdef SLEEP_FUNCTION
-    if (sleepFunction != nullptr)
-        this->sleepFunction = sleepFunction;
-#endif
+    #ifdef SLEEP_FUNCTION
+        if (sleepFunction != nullptr)
+            this->sleepFunction = sleepFunction;
+    #endif
 }
 
 
 float Tasker::getLoad()
 {
-#ifdef TASKER_LOAD_CALCULATIONS
-    return load * 100.f;
-#else
-    return 0.f;
-#endif
+    #ifdef TASKER_LOAD_CALCULATIONS
+        return load * 100.f;
+    #else
+        return 0.f;
+    #endif
 }
 
 

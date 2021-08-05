@@ -32,14 +32,14 @@ class Tasker
     uint32_t lastTaskExecutionTime = 0;     // execution time of the last executed task
     Task* nextTask = nullptr;               // task that will be executed next or nullptr
 
-#ifdef TASKER_LOAD_CALCULATIONS
-    float load = 0.f;                           // from 0 to 1
-#endif
+    #ifdef TASKER_LOAD_CALCULATIONS
+        float load = 0.f;                           // from 0 to 1
+    #endif
 
     typedef void (*SleepFunction)(uint32_t);    // function with one argument (max time [in us] after which that function should return)
-#ifdef SLEEP_FUNCTION
-    SleepFunction sleepFunction;                // function that make processor sleep specified amount of time
-#endif
+    #ifdef SLEEP_FUNCTION
+        SleepFunction sleepFunction;                // function that make processor sleep specified amount of time
+    #endif
 
     static const uint32_t MinTaskInterval_us;   // minimum task interval (in us) - to prevent overloading
 
