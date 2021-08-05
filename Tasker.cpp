@@ -46,6 +46,10 @@ bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us)
     if (tasksAmount >= MaxTasksAmount || task == nullptr)
         return false;
 
+    for (uint8_t i = 0; i < tasksAmount; ++i)
+        if (tasks[i].executable == task)
+            return false;
+
     Task newTask;
     newTask.executable = task;
     newTask.interval_us = interval_us < MinTaskInterval_us ? MinTaskInterval_us : interval_us;
