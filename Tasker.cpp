@@ -8,14 +8,8 @@
 #include "Tasker.h"
 
 const uint32_t Tasker::MinTaskInterval_us = 52;
-const uint8_t Tasker::SleepTimeMargin_us = 40;
 
-#ifdef PROCESSOR_OVERLOAD_CALLBACK
-const uint32_t Tasker::SystemOverloadedSleepTime_us = -1000;
-#endif
-
-static void defaultSleepFunction(uint32_t timeToSleep);
-static void defaultProcessorOverloadCallback();
+static void defaultSleepFunction(uint32_t timeToSleep_us);
 
 
 Tasker::Tasker(uint8_t maxTasksAmount)
@@ -26,10 +20,6 @@ Tasker::Tasker(uint8_t maxTasksAmount)
 
 #ifdef SLEEP_FUNCTION
     sleepFunction = defaultSleepFunction;
-#endif
-
-#ifdef PROCESSOR_OVERLOAD_CALLBACK
-    processorOverloadCallback = defaultProcessorOverloadCallback;
 #endif
 
 }
@@ -178,15 +168,6 @@ void Tasker::setSleepFunction(SleepFunction sleepFunction)
 }
 
 
-void Tasker::setProcessorOverloadCallback(VoidFunction processorOverloadCallback)
-{
-#ifdef PROCESSOR_OVERLOAD_CALLBACK
-    if (processorOverloadCallback != nullptr)
-        this->processorOverloadCallback = processorOverloadCallback;
-#endif
-}
-
-
 float Tasker::getLoad()
 {
 #ifdef TASKER_LOAD_CALCULATIONS
@@ -232,13 +213,8 @@ Tasker::Task* Tasker::getTask(IExecutable* task)
 }
 
 
-void defaultSleepFunction(uint32_t timeToSleep)
+void defaultSleepFunction(uint32_t timeToSleep_us)
 {
-    uint32_t sleepEndTime = micros() + timeToSleep;
-    while (micros() < sleepEndTime);
-}
-
-
-void defaultProcessorOverloadCallback()
-{
+    uint32_t sleepEndTime_us = micros() + timeToSleep_us;
+    while (micros() < sleepEndTime_us);
 }

@@ -32,26 +32,16 @@ class Tasker
     uint32_t lastTaskExecutionTime = 0;     // execution time of the last executed task
     Task* nextTask = nullptr;               // task that will be executed next or nullptr
 
-    typedef void (*SleepFunction)(uint32_t);    // function with one argument (max time after that function should return)
-#ifdef SLEEP_FUNCTION
-    SleepFunction sleepFunction;                // function that wait specified amount of time
-#endif
-
-    typedef void (*VoidFunction)();
-#ifdef PROCESSOR_OVERLOAD_CALLBACK
-    VoidFunction processorOverloadCallback;
-#endif
-
 #ifdef TASKER_LOAD_CALCULATIONS
-    float load = 0.f;                       // from 0 to 1
+    float load = 0.f;                           // from 0 to 1
 #endif
 
-    static const uint32_t MinTaskInterval_us;  // minimal task interval (in us) - to prevent overloading
-    static const uint8_t SleepTimeMargin_us;
-
-#ifdef PROCESSOR_OVERLOAD_CALLBACK
-    static const uint32_t SystemOverloadedSleepTime_us;  // value below which system is considered as overloaded (in us) // TODO: improve name of this variable
+    typedef void (*SleepFunction)(uint32_t);    // function with one argument (max time [in us] after which that function should return)
+#ifdef SLEEP_FUNCTION
+    SleepFunction sleepFunction;                // function that make processor sleep specified amount of time
 #endif
+
+    static const uint32_t MinTaskInterval_us;   // minimum task interval (in us) - to prevent overloading
 
 public:
     Tasker(uint8_t maxTasksAmount);
@@ -154,12 +144,6 @@ public:
     void setSleepFunction(SleepFunction sleepFunction);
 
     /**
-     * @brief Set your own callback function executed when processor is overloaded
-     * (this feature could be enabled or disabled in TaskerConfig.h file).
-     */
-    void setProcessorOverloadCallback(VoidFunction setProcessorOverloadCallback);
-
-    /**
      * @return current tasker load (from 0 to 100 [%])
      * (this feature could be enabled or disabled in TaskerConfig.h file)
      */
@@ -180,7 +164,7 @@ public:
 
 private:
     /**
-     * @brief This method calculates which task is going to be executed next.
+     * @brief Calculates which task is going to be executed next.
      */
     void calculateNextTask();
 
@@ -201,33 +185,34 @@ inline void Tasker::loop()
     {
         lastTaskExecutionTime = loopStartTime;
         nextTask->executable->execute();
-    #ifdef TASKER_LOAD_CALCULATIONS
-        uint32_t lastExecEndTime = micros();
-    #endif
+        #ifdef TASKER_LOAD_CALCULATIONS
+            uint32_t lastExecEndTime = micros();
+        #endif
 
         nextTask->nextExecutionTime_us += nextTask->interval_us;
         calculateNextTask();
 
-    #if defined(SLEEP_FUNCTION) || defined(TASKER_LOAD_CALCULATIONS) || defined(PROCESSOR_OVERLOAD_CALLBACK)
-        int32_t timeToSleep = nextTask->nextExecutionTime_us - micros();
-    #endif
+        #if defined(SLEEP_FUNCTION) || defined(TASKER_LOAD_CALCULATIONS)
+            int32_t timeToSleep = nextTask->nextExecutionTime_us - micros();
 
-    #ifdef TASKER_LOAD_CALCULATIONS
-        if (timeToSleep > 0)
-            load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR * ((lastExecEndTime-lastTaskExecutionTime) / timeToSleep);
-        else
-            load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR/* *1.f */; // 100% load
-    #endif
+            if (timeToSleep > 0)
+            {
+                #ifdef TASKER_LOAD_CALCULATIONS
+                    float taskExecTime = lastExecEndTime - lastTaskExecutionTime;
+                    load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR * (taskExecTime / (float(timeToSleep) + taskExecTime));
+                #endif
 
-    #ifdef PROCESSOR_OVERLOAD_CALLBACK
-        if (timeToSleep < SystemOverloadedSleepTime_us)
-            processorOverloadCallback();
-    #endif
-
-    #ifdef SLEEP_FUNCTION
-        if (timeToSleep > SleepTimeMargin_us)
-            sleepFunction(timeToSleep - SleepTimeMargin_us);
-    #endif
+                #ifdef SLEEP_FUNCTION
+                    sleepFunction(timeToSleep);
+                #endif
+            }
+            else // timeToSleep <= 0
+            {
+                #ifdef TASKER_LOAD_CALCULATIONS
+                    load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR/* *1.f */; // 100% load
+                #endif
+            }
+        #endif
     }
 }
 
