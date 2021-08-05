@@ -40,7 +40,6 @@ class : public IExecutable
 {
     void execute() override
     {
-        Serial.print("Results:");
         for (int i = 0; i < TestTasksAmt; i++)
         {
             // Show results
@@ -53,7 +52,8 @@ class : public IExecutable
             testTasks[i].counter = 0;  // reset the counter
         }
         
-        Serial.println();
+        Serial.print("Load: ");
+        Serial.println(tasker.getLoad());
     }
 } resultsTask;
 
@@ -91,4 +91,4 @@ float someCalculations(float var)
 }
 
 
-static_assert(TestTasksAmt == (sizeof(TestTasksFreq) / sizeof(TestTasksFreq[0])), "Provide frequency for each test task");
+static_assert(TestTasksAmt <= (sizeof(TestTasksFreq) / sizeof(TestTasksFreq[0])), "Provide frequency for each test task");
