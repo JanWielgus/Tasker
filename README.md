@@ -1,15 +1,17 @@
 # Tasker (Scheduler)
 
-_SimpleTasker_ is an Arduino library that enables execution of multiple fragments of code recurrently with different intervals.
+_Tasker_ is an Arduino library that enables execution of multiple fragments of code recurrently with different intervals.
  
 ## What is the purpose?
 
-Purpose of this library is to make easier writing Arduino programs that simulate working on a multi-core environment. It can be achieved by dividing different functionalities into separate tasks (functions) and telling _Tasker_ how often they should be executed.
+The purpose of this library is to simplify writing Arduino programs that simulate working on a multi-core environment. It can be achieved by dividing different functionalities into separate tasks (functions) and telling _Tasker_ how often they should be executed.
 It enables you to easily make complex programs that will be very transparent (see [examples](https://github.com/JanWielgus/Tasker/tree/master/examples) and check how easy it is).
 
 ## How to use it?
 
 ### Installation
+
+If you don't know how to add libraries to Arduino check out this website: https://www.arduino.cc/en/guide/libraries
 
 ### Use in code
 
