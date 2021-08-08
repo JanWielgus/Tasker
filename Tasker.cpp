@@ -54,7 +54,7 @@ bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us, bool isCatching
     newTask.executable = task;
     newTask.interval_us = interval_us < MinTaskInterval_us ? MinTaskInterval_us : interval_us;
     newTask.nextExecutionTime_us = lastTaskExecutionTime;
-    nextTask->isCatchingUp = isCatchingUp;
+    newTask.isCatchingUp = isCatchingUp;
 
     tasks[tasksAmount++] = newTask;
     calculateNextTask();
