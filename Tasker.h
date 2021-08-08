@@ -17,6 +17,13 @@
 #endif
 
 
+enum class TaskType : bool
+{
+    CATCHING_UP = true,
+    NO_CATCHING_UP = false
+};
+
+
 class Tasker
 {
     struct Task
@@ -55,7 +62,7 @@ public:
      * @return true only if the task was successfully added,
      * false otherwise.
      */
-    bool addTask_Hz(IExecutable* task, float frequency_Hz, bool isCatchingUp = true);
+    bool addTask_Hz(IExecutable* task, float frequency_Hz, TaskType type = TaskType::CATCHING_UP);
 
     /**
      * @brief Add task and set it's interval (time between two nearest executions).
@@ -63,7 +70,7 @@ public:
      * @param interval_us Task running interval (in us).
      * @return true if the task was successfully added, false otherwise.
      */
-    bool addTask_us(IExecutable* task, uint32_t interval_us, bool isCatchingUp = true);
+    bool addTask_us(IExecutable* task, uint32_t interval_us, TaskType type = TaskType::CATCHING_UP);
 
     /**
      * @brief Remove task from the tasker.

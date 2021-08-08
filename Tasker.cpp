@@ -31,17 +31,17 @@ Tasker::~Tasker()
 }
 
 
-bool Tasker::addTask_Hz(IExecutable* task, float frequency_Hz, bool isCatchingUp)
+bool Tasker::addTask_Hz(IExecutable* task, float frequency_Hz, TaskType type)
 {
     if (tasksAmount >= MaxTasksAmount || task == nullptr || frequency_Hz <= 0)
         return false;
 
     uint32_t newInterval_us = 1000000.0 / frequency_Hz + 0.5f;
-    return addTask_us(task, newInterval_us, isCatchingUp);
+    return addTask_us(task, newInterval_us, type);
 }
 
 
-bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us, bool isCatchingUp)
+bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us, TaskType type)
 {
     if (tasksAmount >= MaxTasksAmount || task == nullptr)
         return false;
@@ -54,7 +54,7 @@ bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us, bool isCatching
     newTask.executable = task;
     newTask.interval_us = interval_us < MinTaskInterval_us ? MinTaskInterval_us : interval_us;
     newTask.nextExecutionTime_us = lastTaskExecutionTime;
-    newTask.isCatchingUp = isCatchingUp;
+    newTask.isCatchingUp = type == TaskType::CATCHING_UP;
 
     tasks[tasksAmount++] = newTask;
     calculateNextTask();
