@@ -24,6 +24,7 @@ class Tasker
         IExecutable* executable;
         uint32_t interval_us;
         uint32_t nextExecutionTime_us;
+        bool isCatchingUp;
     };
 
     const uint8_t MaxTasksAmount;
@@ -54,7 +55,7 @@ public:
      * @return true only if the task was successfully added,
      * false otherwise.
      */
-    bool addTask_Hz(IExecutable* task, float frequency_Hz);
+    bool addTask_Hz(IExecutable* task, float frequency_Hz, bool isCatchingUp = true);
 
     /**
      * @brief Add task and set it's interval (time between two nearest executions).
@@ -62,7 +63,7 @@ public:
      * @param interval_us Task running interval (in us).
      * @return true if the task was successfully added, false otherwise.
      */
-    bool addTask_us(IExecutable* task, uint32_t interval_us);
+    bool addTask_us(IExecutable* task, uint32_t interval_us, bool isCatchingUp = true);
 
     /**
      * @brief Remove task from the tasker.
@@ -189,7 +190,11 @@ inline void Tasker::loop()
             uint32_t lastExecEndTime = micros();
         #endif
 
-        nextTask->nextExecutionTime_us += nextTask->interval_us;
+        if (nextTask->isCatchingUp)
+            nextTask->nextExecutionTime_us += nextTask->interval_us;
+        else
+            nextTask->nextExecutionTime_us = loopStartTime + nextTask->interval_us;
+
         calculateNextTask();
 
         #if defined(SLEEP_FUNCTION) || defined(TASKER_LOAD_CALCULATIONS)
