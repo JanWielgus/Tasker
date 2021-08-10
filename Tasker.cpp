@@ -123,7 +123,10 @@ bool Tasker::pauseTask_us(IExecutable* task, uint32_t pauseTime_us)
 
 bool Tasker::pauseTask_s(IExecutable* task, float pauseTime_s)
 {
-    return pauseTask_us(task, pauseTime_s * 1000000.f + 0.5f);
+    if (pauseTime_s > 0)
+        return pauseTask_us(task, pauseTime_s * 1000000.f + 0.5f);
+    else
+        return false;
 }
 
 
