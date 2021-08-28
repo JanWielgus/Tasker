@@ -7,7 +7,7 @@
 
 #include "Tasker.h"
 
-const uint32_t Tasker::MinTaskInterval_us = 52;
+const uint32_t Tasker::MinTaskInterval_us = 100;
 
 static void defaultSleepFunction(uint32_t timeToSleep_us);
 
@@ -53,8 +53,8 @@ bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us, TaskType type)
     Task newTask;
     newTask.executable = task;
     newTask.interval_us = interval_us < MinTaskInterval_us ? MinTaskInterval_us : interval_us;
-    newTask.nextExecutionTime_us = lastTaskExecutionTime;
-    newTask.isCatchingUp = type == TaskType::CATCHING_UP;
+    newTask.nextExecutionTime_us = micros();
+    newTask.taskType = type;
 
     tasks[tasksAmount++] = newTask;
     calculateNextTask();

@@ -31,7 +31,7 @@ class Tasker
         IExecutable* executable;
         uint32_t interval_us;
         uint32_t nextExecutionTime_us;
-        bool isCatchingUp;
+        TaskType taskType;
     };
 
     const uint8_t MaxTasksAmount;
@@ -137,7 +137,7 @@ public:
     float getTaskInterval_s(IExecutable* task);
 
     /**
-     * @return current tasks amount.
+     * @return Get current amount of tasks.
      */
     uint8_t getTasksAmount();
 
@@ -152,7 +152,7 @@ public:
     void setSleepFunction(SleepFunction sleepFunction);
 
     /**
-     * @return current tasker load (from 0 to 100 [%])
+     * @return Check current tasker load (from 0 to 100 [%])
      * (this feature could be enabled or disabled in TaskerConfig.h file)
      */
     float getLoad();
@@ -197,7 +197,7 @@ inline void Tasker::loop()
             uint32_t lastExecEndTime = micros();
         #endif
 
-        if (nextTask->isCatchingUp)
+        if (nextTask->taskType == TaskType::CATCHING_UP)
             nextTask->nextExecutionTime_us += nextTask->interval_us;
         else
             nextTask->nextExecutionTime_us = loopStartTime + nextTask->interval_us;
