@@ -7,7 +7,7 @@
 
 #include "Tasker.h"
 
-const uint32_t Tasker::MinTaskInterval_us = 52;
+const uint32_t Tasker::MinTaskInterval_us = 100;
 
 static void defaultSleepFunction(uint32_t timeToSleep_us);
 
@@ -31,17 +31,17 @@ Tasker::~Tasker()
 }
 
 
-bool Tasker::addTask_Hz(IExecutable* task, float frequency_Hz)
+bool Tasker::addTask_Hz(IExecutable* task, float frequency_Hz, TaskType type)
 {
     if (tasksAmount >= MaxTasksAmount || task == nullptr || frequency_Hz <= 0)
         return false;
 
     uint32_t newInterval_us = 1000000.0 / frequency_Hz + 0.5f;
-    return addTask_us(task, newInterval_us);
+    return addTask_us(task, newInterval_us, type);
 }
 
 
-bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us)
+bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us, TaskType type)
 {
     if (tasksAmount >= MaxTasksAmount || task == nullptr)
         return false;
@@ -53,7 +53,8 @@ bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us)
     Task newTask;
     newTask.executable = task;
     newTask.interval_us = interval_us < MinTaskInterval_us ? MinTaskInterval_us : interval_us;
-    newTask.nextExecutionTime_us = lastTaskExecutionTime;
+    newTask.nextExecutionTime_us = micros();
+    newTask.taskType = type;
 
     tasks[tasksAmount++] = newTask;
     calculateNextTask();
@@ -122,7 +123,10 @@ bool Tasker::pauseTask_us(IExecutable* task, uint32_t pauseTime_us)
 
 bool Tasker::pauseTask_s(IExecutable* task, float pauseTime_s)
 {
-    return pauseTask_us(task, pauseTime_s * 1000000.f + 0.5f);
+    if (pauseTime_s > 0)
+        return pauseTask_us(task, pauseTime_s * 1000000.f + 0.5f);
+    else
+        return false;
 }
 
 

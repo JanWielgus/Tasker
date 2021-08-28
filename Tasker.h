@@ -17,6 +17,13 @@
 #endif
 
 
+enum class TaskType : uint8_t
+{
+    CATCHING_UP = true,
+    NO_CATCHING_UP = false
+};
+
+
 class Tasker
 {
     struct Task
@@ -24,6 +31,7 @@ class Tasker
         IExecutable* executable;
         uint32_t interval_us;
         uint32_t nextExecutionTime_us;
+        TaskType taskType;
     };
 
     const uint8_t MaxTasksAmount;
@@ -54,7 +62,7 @@ public:
      * @return true only if the task was successfully added,
      * false otherwise.
      */
-    bool addTask_Hz(IExecutable* task, float frequency_Hz);
+    bool addTask_Hz(IExecutable* task, float frequency_Hz, TaskType type = TaskType::CATCHING_UP);
 
     /**
      * @brief Add task and set it's interval (time between two nearest executions).
@@ -62,7 +70,7 @@ public:
      * @param interval_us Task running interval (in us).
      * @return true if the task was successfully added, false otherwise.
      */
-    bool addTask_us(IExecutable* task, uint32_t interval_us);
+    bool addTask_us(IExecutable* task, uint32_t interval_us, TaskType type = TaskType::CATCHING_UP);
 
     /**
      * @brief Remove task from the tasker.
@@ -129,7 +137,7 @@ public:
     float getTaskInterval_s(IExecutable* task);
 
     /**
-     * @return current tasks amount.
+     * @return Get current amount of tasks.
      */
     uint8_t getTasksAmount();
 
@@ -144,7 +152,7 @@ public:
     void setSleepFunction(SleepFunction sleepFunction);
 
     /**
-     * @return current tasker load (from 0 to 100 [%])
+     * @return Check current tasker load (from 0 to 100 [%])
      * (this feature could be enabled or disabled in TaskerConfig.h file)
      */
     float getLoad();
@@ -189,7 +197,11 @@ inline void Tasker::loop()
             uint32_t lastExecEndTime = micros();
         #endif
 
-        nextTask->nextExecutionTime_us += nextTask->interval_us;
+        if (nextTask->taskType == TaskType::CATCHING_UP)
+            nextTask->nextExecutionTime_us += nextTask->interval_us;
+        else
+            nextTask->nextExecutionTime_us = loopStartTime + nextTask->interval_us;
+
         calculateNextTask();
 
         #if defined(SLEEP_FUNCTION) || defined(TASKER_LOAD_CALCULATIONS)
