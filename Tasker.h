@@ -17,7 +17,7 @@
 #endif
 
 
-enum class TaskType : bool
+enum class TaskType : uint8_t
 {
     CATCHING_UP = true,
     NO_CATCHING_UP = false
