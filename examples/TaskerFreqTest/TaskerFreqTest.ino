@@ -84,7 +84,7 @@ float someCalculations(float var)
 {
     volatile float temp = (var + 2) * 5.2f;
 
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < int(var)%31; i++)
         temp += (i + var) * var - temp;
 
     return temp;
