@@ -16,9 +16,10 @@ public:
     virtual ~IExecutable() {}
 
     /**
-     * @brief Do some action
+     * @brief Do some action.
+     * @param dt_s Time between this and previous execution.
      */
-    virtual void execute() = 0;
+    virtual void execute(float dt_s) = 0;
 };
 
 

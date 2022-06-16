@@ -31,6 +31,7 @@ class Tasker
         IExecutable* executable;
         uint32_t interval_us;
         uint32_t nextExecutionTime_us;
+        uint32_t lastExecutionTime_us; // for execute(dt) version
         TaskType taskType;
     };
 
@@ -192,7 +193,10 @@ inline void Tasker::loop()
     if (nextTask != nullptr && loopStartTime >= nextTask->nextExecutionTime_us)
     {
         lastTaskExecutionTime = loopStartTime;
-        nextTask->executable->execute();
+
+        float curTaskDt_s = float(loopStartTime - nextTask->lastExecutionTime_us) * 0.000001f;
+        nextTask->executable->execute(curTaskDt_s);
+        nextTask->lastExecutionTime_us = loopStartTime;
         #ifdef TASKER_LOAD_CALCULATIONS
             uint32_t lastExecEndTime = micros();
         #endif
