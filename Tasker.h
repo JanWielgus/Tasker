@@ -45,7 +45,7 @@ class Tasker
     #endif
 
     typedef void (*SleepFunction)(uint32_t);    // function with one argument (max time [in us] after which that function should return)
-    #ifdef SLEEP_FUNCTION
+    #ifdef TASKER_SLEEP_FUNCTION
         SleepFunction sleepFunction;                // function that make processor sleep specified amount of time
     #endif
 
@@ -204,7 +204,7 @@ inline void Tasker::loop()
 
         calculateNextTask();
 
-        #if defined(SLEEP_FUNCTION) || defined(TASKER_LOAD_CALCULATIONS)
+        #if defined(TASKER_SLEEP_FUNCTION) || defined(TASKER_LOAD_CALCULATIONS)
             int32_t timeToSleep = nextTask->nextExecutionTime_us - micros();
 
             if (timeToSleep > 0)
@@ -214,7 +214,7 @@ inline void Tasker::loop()
                     load = TASKER_LOAD_FILTER_BETA * load + TASKER_LOAD_FILTER_BETA_COFACTOR * (taskExecTime / (float(timeToSleep) + taskExecTime));
                 #endif
 
-                #ifdef SLEEP_FUNCTION
+                #ifdef TASKER_SLEEP_FUNCTION
                     sleepFunction(timeToSleep);
                 #endif
             }
