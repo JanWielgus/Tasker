@@ -26,9 +26,15 @@ enum class TaskType : uint8_t
 
 class Tasker
 {
+    #ifdef TASKER_IEXECUTABLE_POINTER_TASK
+        typedef IExecutable* ExecutableType;
+    #else
+        typedef void (*ExecutableType)();
+    #endif
+
     struct Task
     {
-        IExecutable* executable;
+        ExecutableType executable;
         uint32_t interval_us;
         uint32_t nextExecutionTime_us;
         TaskType taskType;
@@ -62,7 +68,7 @@ public:
      * @return true only if the task was successfully added,
      * false otherwise.
      */
-    bool addTask_Hz(IExecutable* task, float frequency_Hz, TaskType type = TaskType::CATCHING_UP);
+    bool addTask_Hz(ExecutableType task, float frequency_Hz, TaskType type = TaskType::CATCHING_UP);
 
     /**
      * @brief Add task and set it's interval (time between two nearest executions).
@@ -70,14 +76,14 @@ public:
      * @param interval_us Task running interval (in us).
      * @return true if the task was successfully added, false otherwise.
      */
-    bool addTask_us(IExecutable* task, uint32_t interval_us, TaskType type = TaskType::CATCHING_UP);
+    bool addTask_us(ExecutableType task, uint32_t interval_us, TaskType type = TaskType::CATCHING_UP);
 
     /**
      * @brief Remove task from the tasker.
      * @param task Task to remove.
      * @return false if the task not found, otherwise true.
      */
-    bool removeTask(IExecutable* task);
+    bool removeTask(ExecutableType task);
 
     /**
      * @brief Change frequency of currently running task.
@@ -86,7 +92,7 @@ public:
      * @return false if the task not found,
      * otherwise true.
      */
-    bool setTaskFrequency(IExecutable* task, float frequency_Hz);
+    bool setTaskFrequency(ExecutableType task, float frequency_Hz);
 
     /**
      * @brief Change interval (time between two nearest executions)
@@ -95,7 +101,7 @@ public:
      * @param interval_us New interval (in us).
      * @return false if the task not found, otherwise true.
      */
-    bool setTaskInterval_us(IExecutable* task, uint32_t interval_us);
+    bool setTaskInterval_us(ExecutableType task, uint32_t interval_us);
 
     /**
      * @brief Pause currently running task for a specified time (in us).
@@ -104,7 +110,7 @@ public:
      * will be continued.
      * @return false if the task not found, otherwise true.
      */
-    bool pauseTask_us(IExecutable* task, uint32_t pauseTime_us);
+    bool pauseTask_us(ExecutableType task, uint32_t pauseTime_us);
 
     /**
      * @brief Pause currentlly running task for a specified time (in seconds).
@@ -113,28 +119,28 @@ public:
      * will be continued.
      * @return false if the task not found, otherwise true.
      */
-    bool pauseTask_s(IExecutable* task, float pauseTime_s);
+    bool pauseTask_s(ExecutableType task, float pauseTime_s);
 
     /**
      * @param task Previously added task whose frequency (in Hz) you want to check.
      * @return frequency (in Hz) of given task or
      * -1 if task hasn't been added to the tasker.
      */
-    float getTaskFrequency_Hz(IExecutable* task);
+    float getTaskFrequency_Hz(ExecutableType task);
 
     /**
      * @param task Previously added task whose interval (in us) you want to check.
      * @return interval (in us) of given task or
      * -1 (max uint32_t) if task hasn't been added to the tasker.
      */
-    uint32_t getTaskInterval_us(IExecutable* task);
+    uint32_t getTaskInterval_us(ExecutableType task);
 
     /**
      * @param task Previously added task whose interval (in s) you want to check.
      * @return interval (in s) of given task or
      * -1 if task hasn't been added to the tasker.
      */
-    float getTaskInterval_s(IExecutable* task);
+    float getTaskInterval_s(ExecutableType task);
 
     /**
      * @return Get current amount of tasks.
@@ -180,7 +186,7 @@ private:
      * @param task Previously added task whose information you want to get.
      * @return Task mathing the argument or nullptr if was not found.
      */
-    Task* getTask(IExecutable* task);
+    Task* getTask(ExecutableType task);
 };
 
 
@@ -192,10 +198,14 @@ inline void Tasker::loop()
     if (nextTask != nullptr && loopStartTime >= nextTask->nextExecutionTime_us)
     {
         lastTaskExecutionTime = loopStartTime;
-        nextTask->executable->execute();
+        #ifdef TASKER_IEXECUTABLE_POINTER_TASK
+            nextTask->executable->execute();
+        #else
+            nextTask->executable();
+        #endif // TASKER_IEXECUTABLE_POINTER_TASK
         #ifdef TASKER_LOAD_CALCULATIONS
             uint32_t lastExecEndTime = micros();
-        #endif
+        #endif // TASKER_LOAD_CALCULATIONS
 
         if (nextTask->taskType == TaskType::CATCHING_UP)
             nextTask->nextExecutionTime_us += nextTask->interval_us;

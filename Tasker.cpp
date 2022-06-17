@@ -32,7 +32,7 @@ Tasker::~Tasker()
 }
 
 
-bool Tasker::addTask_Hz(IExecutable* task, float frequency_Hz, TaskType type)
+bool Tasker::addTask_Hz(ExecutableType task, float frequency_Hz, TaskType type)
 {
     if (tasksAmount >= MaxTasksAmount || task == nullptr || frequency_Hz <= 0)
         return false;
@@ -42,7 +42,7 @@ bool Tasker::addTask_Hz(IExecutable* task, float frequency_Hz, TaskType type)
 }
 
 
-bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us, TaskType type)
+bool Tasker::addTask_us(ExecutableType task, uint32_t interval_us, TaskType type)
 {
     if (tasksAmount >= MaxTasksAmount || task == nullptr)
         return false;
@@ -64,7 +64,7 @@ bool Tasker::addTask_us(IExecutable* task, uint32_t interval_us, TaskType type)
 }
 
 
-bool Tasker::removeTask(IExecutable* task)
+bool Tasker::removeTask(ExecutableType task)
 {
     bool isTaskFound = false;
     for (uint8_t i = 0; i < tasksAmount-1; ++i)
@@ -88,13 +88,13 @@ bool Tasker::removeTask(IExecutable* task)
 }
 
 
-bool Tasker::setTaskFrequency(IExecutable* task, float frequency_Hz)
+bool Tasker::setTaskFrequency(ExecutableType task, float frequency_Hz)
 {
     return setTaskInterval_us(task, 1000000.0 / frequency_Hz + 0.5f);
 }
 
 
-bool Tasker::setTaskInterval_us(IExecutable* task, uint32_t interval_us)
+bool Tasker::setTaskInterval_us(ExecutableType task, uint32_t interval_us)
 {
     Task* t = getTask(task);
     if (t == nullptr)
@@ -109,7 +109,7 @@ bool Tasker::setTaskInterval_us(IExecutable* task, uint32_t interval_us)
 }
 
 
-bool Tasker::pauseTask_us(IExecutable* task, uint32_t pauseTime_us)
+bool Tasker::pauseTask_us(ExecutableType task, uint32_t pauseTime_us)
 {
     Task* t = getTask(task);
     if (t == nullptr)
@@ -122,7 +122,7 @@ bool Tasker::pauseTask_us(IExecutable* task, uint32_t pauseTime_us)
 }
 
 
-bool Tasker::pauseTask_s(IExecutable* task, float pauseTime_s)
+bool Tasker::pauseTask_s(ExecutableType task, float pauseTime_s)
 {
     if (pauseTime_s > 0)
         return pauseTask_us(task, pauseTime_s * 1000000.f + 0.5f);
@@ -131,7 +131,7 @@ bool Tasker::pauseTask_s(IExecutable* task, float pauseTime_s)
 }
 
 
-float Tasker::getTaskFrequency_Hz(IExecutable* task) 
+float Tasker::getTaskFrequency_Hz(ExecutableType task) 
 {
     Task* t = getTask(task);
     if (t == nullptr)
@@ -141,7 +141,7 @@ float Tasker::getTaskFrequency_Hz(IExecutable* task)
 }
 
 
-uint32_t Tasker::getTaskInterval_us(IExecutable* task) 
+uint32_t Tasker::getTaskInterval_us(ExecutableType task) 
 {
     Task* t = getTask(task);
     if (t == nullptr)
@@ -151,7 +151,7 @@ uint32_t Tasker::getTaskInterval_us(IExecutable* task)
 }
 
 
-float Tasker::getTaskInterval_s(IExecutable* task) 
+float Tasker::getTaskInterval_s(ExecutableType task) 
 {
     Task* t = getTask(task);
     if (t == nullptr)
@@ -209,7 +209,7 @@ void Tasker::calculateNextTask()
 }
 
 
-Tasker::Task* Tasker::getTask(IExecutable* task)
+Tasker::Task* Tasker::getTask(ExecutableType task)
 {
     for (uint8_t i = 0; i < tasksAmount; ++i)
     {

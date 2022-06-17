@@ -19,5 +19,9 @@
     #define TASKER_SLEEP_FUNCTION                              // comment this line if you don't want to use sleep function
 #endif
 
+#ifndef TASKER_FUNCTION_POINTER_TASK
+    #define TASKER_IEXECUTABLE_POINTER_TASK
+#endif
+
 
 #endif
