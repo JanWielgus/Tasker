@@ -71,7 +71,7 @@ void setup()
 {
     tasker.addTask_Hz(&exampleTask1, 2.f);  // 2Hz -> two times per second
     // or
-    tasker.addTask_us(&exampleTask1, 500000L);  // (2Hz) 500000us = 1000000us / 2 -> every two seconds
+    tasker.addTask_us(&exampleTask1, 500000L);  // (2Hz) 500000us = 1000000us / 2 -> also two times per second
 }
 ```
 
