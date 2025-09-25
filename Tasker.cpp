@@ -5,6 +5,7 @@
  * 
  */
 
+#include <stdint.h>
 #include "Tasker.h"
 #include "TaskerConfig.h"
 
