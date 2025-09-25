@@ -201,7 +201,7 @@ void Tasker::calculateNextTask()
         return;
     }
     
-    nextTask = tasks;
+    nextTask = &tasks[0];
     for (uint8_t i = 1; i < tasksAmount; ++i)
     {
         if ((long)(tasks[i].nextExecutionTime_us - nextTask->nextExecutionTime_us) < 0)
