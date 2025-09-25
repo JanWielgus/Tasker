@@ -203,8 +203,10 @@ void Tasker::calculateNextTask()
     nextTask = tasks;
     for (uint8_t i = 1; i < tasksAmount; ++i)
     {
-        if (tasks[i].nextExecutionTime_us < nextTask->nextExecutionTime_us)
+        if ((long)(tasks[i].nextExecutionTime_us - nextTask->nextExecutionTime_us) < 0)
+        {
             nextTask = &tasks[i];
+        }
     }
 }
 
