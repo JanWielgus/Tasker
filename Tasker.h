@@ -195,7 +195,12 @@ inline void Tasker::loop()
 {
     uint32_t loopStartTime = micros();
 
-    if (nextTask != nullptr && loopStartTime >= nextTask->nextExecutionTime_us)
+    if (nextTask == nullptr)
+    {
+        return;
+    }
+
+    if ((long)(loopStartTime - nextTask->nextExecutionTime_us) >= 0)
     {
         lastTaskExecutionTime = loopStartTime;
         #ifdef TASKER_IEXECUTABLE_POINTER_TASK
