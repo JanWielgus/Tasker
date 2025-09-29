@@ -9,10 +9,10 @@
 #define TASKERCONFIG_H
 
 
-#ifndef DISABLE_TASKER_LOAD_CALCULATIONS
+#ifdef ENABLE_TASKER_LOAD_CALCULATIONS
     #define TASKER_LOAD_CALCULATIONS
-    #define TASKER_LOAD_FILTER_BETA 0.997f             // If load changes too rapidly or too slowly, adjust this value (bigger->change is slover). This value is between 0 and 1
-    #define TASKER_LOAD_FILTER_BETA_COFACTOR 0.003f    // this should be 1 - TASKER_LOAD_FILTER_BETA
+    #define TASKER_LOAD_FILTER_BETA 0.997f // If load changes too rapidly or too slowly, adjust this value (bigger->change is slower). This value is between 0 and 1
+    #define TASKER_LOAD_FILTER_BETA_COFACTOR (1 - TASKER_LOAD_FILTER_BETA)
 #endif
 
 #ifdef ENABLE_TASKER_SLEEP_FUNCTION
