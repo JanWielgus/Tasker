@@ -15,8 +15,8 @@
     #define TASKER_LOAD_FILTER_BETA_COFACTOR 0.003f    // this should be 1 - TASKER_LOAD_FILTER_BETA
 #endif
 
-#ifndef DISABLE_TASKER_SLEEP_FUNCTION
-    #define TASKER_SLEEP_FUNCTION                              // comment this line if you don't want to use sleep function
+#ifdef ENABLE_TASKER_SLEEP_FUNCTION
+    #define TASKER_SLEEP_FUNCTION
 #endif
 
 #ifndef TASKER_FUNCTION_POINTER_TASK
